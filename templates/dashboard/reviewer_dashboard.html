@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Reviewer Dashboard | RPMS{% endblock %}
+{% block content %}
+    <section class="dashboard-header mb-4">
+        <div>
+            <span class="dashboard-role-label">Reviewer Workspace</span>
+            <h1 class="display-6 fw-bold mt-2 mb-2">Reviewer Dashboard</h1>
+            <p class="text-secondary mb-0">
+                View assigned papers, respond to assignments and
+                complete reviews with a recommendation.
+            </p>
+        </div>
+        <div class="dashboard-user-card">
+            <span class="dashboard-avatar">{{ user.username|first|upper }}</span>
+            <div>
+                <p class="fw-semibold mb-0">{{ user.get_full_name|default:user.username }}</p>
+                <small class="text-secondary">{{ user.area_of_expertise|default:"Reviewer" }}</small>
+            </div>
+        </div>
+    </section>
+    <div class="row g-4">
+        <div class="col-md-7 col-xl-5">
+            <div class="dashboard-card h-100">
+                <div class="dashboard-card-icon">01</div>
+                <h2 class="h5 fw-bold">My Review Assignments</h2>
+                <p class="text-secondary">
+                    View assigned papers and check whether each
+                    assignment is assigned, accepted, declined or completed.
+                </p>
+                <a href="{% url 'reviewer_assignment_list' %}"
+                   class="btn btn-primary mt-auto">View Assignments</a>
+            </div>
+        </div>
+        <div class="col-md-5 col-xl-4">
+            <div class="dashboard-info-card h-100">
+                <h2 class="h5 fw-bold">Review process</h2>
+                <ol class="dashboard-process-list">
+                    <li>Open the assigned paper.</li>
+                    <li>Accept or decline the assignment.</li>
+                    <li>Read the uploaded PDF.</li>
+                    <li>Complete the review with a recommendation.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+{% endblock %}

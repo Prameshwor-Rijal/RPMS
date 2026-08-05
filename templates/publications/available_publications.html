@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Available Publications | RPMS{% endblock %}
+{% block content %}
+    <section class="page-header">
+        <div>
+            <span class="page-label">Author Workspace</span>
+            <h1 class="h2 fw-bold mt-2 mb-2">Available Conferences and Journals</h1>
+            <p class="text-secondary mb-0">View publications that are currently accepting submissions.</p>
+        </div>
+        <a href="{% url 'paper_submit' %}" class="btn btn-primary">Submit Paper</a>
+    </section>
+    {% if publications %}
+        <div class="row g-4">
+            {% for publication in publications %}
+                <div class="col-md-6">
+                    <article class="publication-card h-100">
+                        <div class="d-flex justify-content-between gap-3">
+                            <span class="page-label">{{ publication.get_publication_type_display }}</span>
+                            <span class="status-badge status-{{ publication.status|lower }}">{{ publication.get_status_display }}</span>
+                        </div>
+                        <h2 class="h5 fw-bold mt-3">{{ publication.name }}</h2>
+                        <p class="text-secondary">{{ publication.description|truncatewords:24 }}</p>
+                        <div class="publication-meta mt-auto">
+                            <div>
+                                <span>Submission Deadline</span>
+                                <strong>{{ publication.submission_deadline|date:"M d, Y" }}</strong>
+                            </div>
+                            <div>
+                                <span>Location</span>
+                                <strong>{{ publication.location|default:"Not specified" }}</strong>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">PJ</div>
+            <h2 class="h4 fw-bold">No publications available</h2>
+            <p class="text-secondary mb-0">There are currently no conferences or journals accepting papers.</p>
+        </div>
+    {% endif %}
+    <div class="mt-4">
+        <a href="{% url 'author_dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
+{% endblock %}

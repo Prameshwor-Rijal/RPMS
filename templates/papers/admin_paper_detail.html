@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Manage Paper | RPMS{% endblock %}
+{% block content %}
+    <section class="page-header">
+        <div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <span class="page-label">Submission #{{ paper.id }}</span>
+                <span class="status-badge status-{{ paper.status|lower }}">{{ paper.get_status_display }}</span>
+            </div>
+            <h1 class="h2 fw-bold mb-2">{{ paper.title }}</h1>
+            <p class="text-secondary mb-0">
+                Submitted by
+                {{ paper.corresponding_author.get_full_name|default:paper.corresponding_author.username }}
+            </p>
+        </div>
+        <a href="{% url 'admin_paper_list' %}" class="btn btn-outline-secondary">Back to Papers</a>
+    </section>
+    <div class="admin-paper-layout">
+        <div>
+            <section class="detail-card mb-4">
+                <h2 class="h5 fw-bold mb-4">Paper Information</h2>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span>Author</span>
+                        <p>{{ paper.corresponding_author.get_full_name|default:paper.corresponding_author.username }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span>Email</span>
+                        <p>{{ paper.corresponding_author.email }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span>Conference/Journal</span>
+                        <p>{{ paper.publication.name }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span>Research Category</span>
+                        <p>{{ paper.research_category }}</p>
+                    </div>
+                    <div class="detail-item detail-item-wide">
+                        <span>Abstract</span>
+                        <p>{{ paper.abstract }}</p>
+                    </div>
+                    <div class="detail-item detail-item-wide">
+                        <span>Keywords</span>
+                        <p>{{ paper.keywords }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span>Current Status</span>
+                        <p>{{ paper.get_status_display }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span>Submitted At</span>
+                        <p>{{ paper.submitted_at|date:"M d, Y H:i" }}</p>
+                    </div>
+                </div>
+            </section>
+            <section class="content-card">
+                <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                    <h2 class="h5 fw-bold mb-0">Reviewer Assignments</h2>
+                    {% if paper.status == "READY_FOR_REVIEW" or paper.status == "UNDER_REVIEW" %}
+                        <a href="{% url 'reviewer_assignment_create' paper.pk %}"
+                           class="btn btn-sm btn-primary">Assign Reviewer</a>
+                    {% endif %}
+                </div>
+                {% with assignments=paper.reviewer_assignments.all %}
+                    {% if assignments %}
+                        <div class="table-responsive">
+                            <table class="table align-middle rpms-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Reviewer</th>
+                                        <th>Expertise</th>
+                                        <th>Status</th>
+                                        <th>Recommendation</th>
+                                        <th>Assigned At</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for assignment in assignments %}
+                                        <tr>
+                                            <td>{{ assignment.reviewer.get_full_name|default:assignment.reviewer.username }}</td>
+                                            <td>{{ assignment.reviewer.area_of_expertise|default:"Not specified" }}</td>
+                                            <td>
+                                                <span class="assignment-badge assignment-{{ assignment.status|lower }}">{{ assignment.get_status_display }}</span>
+                                            </td>
+                                            <td>
+                                                {% if assignment.recommendation %}
+                                                    {{ assignment.get_recommendation_display }}
+                                                {% else %}
+                                                    <span class="text-secondary">Not provided</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ assignment.assigned_at|date:"M d, Y H:i" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="admin-empty-section">
+                            <p class="text-secondary mb-0">No reviewers have been assigned to this paper.</p>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            </section>
+        </div>
+        <aside>
+            <section class="admin-action-card mb-4">
+                <h2 class="h5 fw-bold mb-3">Workflow Actions</h2>
+                <div class="d-grid gap-2">
+                    {% if paper.status == "SUBMITTED" or paper.status == "UNDER_INITIAL_REVIEW" or paper.status == "READY_FOR_REVIEW" %}
+                        <a href="{% url 'paper_initial_screening' paper.pk %}"
+                           class="btn btn-primary">Initial Screening</a>
+                    {% endif %}
+                    {% if paper.status == "READY_FOR_REVIEW" or paper.status == "UNDER_REVIEW" %}
+                        <a href="{% url 'reviewer_assignment_create' paper.pk %}"
+                           class="btn btn-primary">Assign Reviewer</a>
+                    {% endif %}
+                    {% if paper.status != "ACCEPTED" and paper.status != "REJECTED" %}
+                        <a href="{% url 'paper_final_decision' paper.pk %}"
+                           class="btn btn-outline-danger">Make Decision</a>
+                    {% endif %}
+                    {% if paper.status == "ACCEPTED" or paper.status == "REJECTED" %}
+                        <div class="final-status-box status-{{ paper.status|lower }}">
+                            Final decision:
+                            <strong>{{ paper.get_status_display }}</strong>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+            <section class="paper-files-card">
+                <h2 class="h5 fw-bold mb-3">Paper Files</h2>
+                {% for version in paper.versions.all %}
+                    <div class="paper-version-item">
+                        <div>
+                            <strong>Version {{ version.version_number }}</strong>
+                            <small class="d-block text-secondary">{{ version.uploaded_at|date:"M d, Y H:i" }}</small>
+                        </div>
+                        <a href="{{ version.file.url }}"
+                           target="_blank"
+                           rel="noopener"
+                           class="btn btn-sm btn-outline-primary">View PDF</a>
+                    </div>
+                {% empty %}
+                    <p class="text-secondary mb-0">No uploaded files.</p>
+                {% endfor %}
+            </section>
+        </aside>
+    </div>
+{% endblock %}

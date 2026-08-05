@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Author Registration | RPMS{% endblock %}
+{% block content %}
+    <div class="auth-wrapper auth-wrapper-wide">
+        <div class="auth-card">
+            <div class="auth-heading text-center">
+                <span class="auth-icon">AR</span>
+                <h1 class="h3 fw-bold mt-3 mb-2">Author Registration</h1>
+                <p class="text-secondary mb-0">
+                    Create an Author account to submit and track
+                    research papers.
+                </p>
+            </div>
+            <form method="post" class="auth-form mt-4">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            <p class="mb-0">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="row g-3">
+                    {% for field in form %}
+                        <div class=" {% if field.name == 'first_name' or field.name == 'last_name' %} col-md-6 {% else %} col-12 {% endif %} ">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text|safe }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2 mt-4">Create Author Account</button>
+            </form>
+            <div class="auth-footer text-center mt-4">
+                <p class="text-secondary mb-0">
+                    Already have an account?
+                    <a href="{% url 'login' %}" class="fw-semibold">Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

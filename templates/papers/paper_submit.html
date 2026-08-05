@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Submit Research Paper | RPMS{% endblock %}
+{% block content %}
+    <section class="page-header">
+        <div>
+            <span class="page-label">Author Workspace</span>
+            <h1 class="h2 fw-bold mt-2 mb-2">Submit Research Paper</h1>
+            <p class="text-secondary mb-0">Enter the paper information and upload the PDF file.</p>
+        </div>
+        <a href="{% url 'my_submissions' %}" class="btn btn-outline-primary">My Submissions</a>
+    </section>
+    <div class="form-page-card">
+        <form method="post" enctype="multipart/form-data" class="rpms-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <p class="mb-0">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="row g-3">
+                {% for field in form %}
+                    <div class=" {% if field.name == 'title' or field.name == 'abstract' %} col-12 {% elif field.name == 'publication' or field.name == 'paper_file' %} col-12 {% else %} col-md-6 {% endif %} ">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="paper-upload-note mt-4">
+                <strong>Before submitting</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Confirm that the publication is correct.</li>
+                    <li>Upload the research paper as a PDF.</li>
+                    <li>Review the title, abstract and keywords.</li>
+                </ul>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">Submit Research Paper</button>
+                <a href="{% url 'author_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

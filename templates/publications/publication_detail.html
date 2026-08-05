@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ publication.name }} | RPMS{% endblock %}
+{% block content %}
+    <section class="page-header">
+        <div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <span class="page-label">{{ publication.get_publication_type_display }}</span>
+                <span class="status-badge status-{{ publication.status|lower }}">{{ publication.get_status_display }}</span>
+            </div>
+            <h1 class="h2 fw-bold mb-2">{{ publication.name }}</h1>
+            <p class="text-secondary mb-0">Publication information and important dates.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'publication_update' publication.pk %}"
+               class="btn btn-primary">Edit</a>
+            <a href="{% url 'publication_delete' publication.pk %}"
+               class="btn btn-outline-danger">Delete</a>
+        </div>
+    </section>
+    <div class="detail-card">
+        <div class="detail-grid">
+            <div class="detail-item detail-item-wide">
+                <span>Description</span>
+                <p>{{ publication.description|default:"No description provided." }}</p>
+            </div>
+            <div class="detail-item">
+                <span>Publication Type</span>
+                <p>{{ publication.get_publication_type_display }}</p>
+            </div>
+            <div class="detail-item">
+                <span>Status</span>
+                <p>{{ publication.get_status_display }}</p>
+            </div>
+            <div class="detail-item">
+                <span>Submission Opens</span>
+                <p>{{ publication.submission_open_date|date:"M d, Y" }}</p>
+            </div>
+            <div class="detail-item">
+                <span>Submission Deadline</span>
+                <p>{{ publication.submission_deadline|date:"M d, Y" }}</p>
+            </div>
+            <div class="detail-item">
+                <span>Review Deadline</span>
+                <p>{{ publication.review_deadline|date:"M d, Y" }}</p>
+            </div>
+            <div class="detail-item">
+                <span>Event or Publication Date</span>
+                <p>{{ publication.event_date|date:"M d, Y" }}</p>
+            </div>
+            <div class="detail-item">
+                <span>Location</span>
+                <p>{{ publication.location|default:"Not specified" }}</p>
+            </div>
+            <div class="detail-item">
+                <span>Created By</span>
+                <p>{{ publication.created_by.get_full_name|default:publication.created_by.username }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a href="{% url 'publication_list' %}" class="btn btn-outline-secondary">Back to Publications</a>
+    </div>
+{% endblock %}

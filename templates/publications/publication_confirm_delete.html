@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Delete Publication | RPMS{% endblock %}
+{% block content %}
+    <div class="confirmation-wrapper">
+        <div class="confirmation-card">
+            <div class="confirmation-icon confirmation-icon-danger">!</div>
+            <h1 class="h3 fw-bold">Delete Publication</h1>
+            <p class="text-secondary">You are about to permanently delete:</p>
+            <div class="confirmation-target">{{ publication.name }}</div>
+            <div class="alert alert-warning mt-4">This action cannot be undone.</div>
+            <form method="post" class="confirmation-form">
+                {% csrf_token %}
+                <div class="d-flex flex-wrap justify-content-center gap-2">
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    <a href="{% url 'publication_detail' publication.pk %}"
+                       class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

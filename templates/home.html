@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Home | RPMS{% endblock %}
+{% block content %}
+    <section class="hero-section rounded-4 mb-5">
+        <div class="row align-items-center g-4 position-relative">
+            <div class="col-lg-7">
+                <span class="hero-label">Research Paper Management System</span>
+                <h1 class="display-5 fw-bold mt-3 mb-3">Manage research papers from submission to final decision</h1>
+                <p class="lead mb-4">
+                    A centralized platform for authors, reviewers and
+                    administrators to manage conferences, journals,
+                    paper submissions and review progress.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard_redirect' %}"
+                           class="btn btn-light btn-lg px-4">Open Dashboard</a>
+                    {% else %}
+                        <a href="{% url 'register' %}" class="btn btn-light btn-lg px-4">Register as Author</a>
+                        <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="hero-panel">
+                    <h2 class="h5 text-white mb-4">Paper Workflow</h2>
+                    <div class="hero-workflow-item">
+                        <span>1</span>
+                        Author submits a research paper
+                    </div>
+                    <div class="hero-workflow-item">
+                        <span>2</span>
+                        Admin assigns a reviewer
+                    </div>
+                    <div class="hero-workflow-item">
+                        <span>3</span>
+                        Reviewer completes the review
+                    </div>
+                    <div class="hero-workflow-item">
+                        <span>4</span>
+                        Admin accepts or rejects the paper
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="mb-5">
+        <div class="section-heading text-center mx-auto mb-4">
+            <p class="text-primary fw-semibold mb-2">Main Features</p>
+            <h2 class="fw-bold">Everything needed for the publication workflow</h2>
+            <p class="text-secondary mb-0">
+                The system focuses on the essential activities required
+                to manage research papers efficiently.
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-number">01</div>
+                    <h3 class="h5">Author Registration</h3>
+                    <p class="mb-0 text-secondary">
+                        Authors can create accounts and access their own
+                        submission dashboard.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-number">02</div>
+                    <h3 class="h5">Paper Submission</h3>
+                    <p class="mb-0 text-secondary">
+                        Submit paper details and upload the research paper
+                        securely as a PDF.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-number">03</div>
+                    <h3 class="h5">Reviewer Assignment</h3>
+                    <p class="mb-0 text-secondary">
+                        Administrators can assign suitable reviewers to
+                        submitted papers.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-number">04</div>
+                    <h3 class="h5">Review Tracking</h3>
+                    <p class="mb-0 text-secondary">
+                        Track assignments as assigned, accepted, declined
+                        or completed.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-number">05</div>
+                    <h3 class="h5">Final Decisions</h3>
+                    <p class="mb-0 text-secondary">
+                        Administrators can accept or reject papers after
+                        reviewing their progress.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-number">06</div>
+                    <h3 class="h5">Publication Management</h3>
+                    <p class="mb-0 text-secondary">
+                        Create and manage conferences and journals with
+                        submission and review deadlines.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="workflow-section rounded-4 p-4 p-lg-5">
+        <div class="text-center mb-4">
+            <p class="text-primary fw-semibold mb-2">Simple Process</p>
+            <h2 class="fw-bold mb-0">From submission to decision</h2>
+        </div>
+        <div class="row g-4 text-center">
+            <div class="col-md-3">
+                <div class="workflow-step">
+                    <span>1</span>
+                    <h3 class="h6 mt-3">Submit Paper</h3>
+                    <p class="small text-secondary mb-0">Author uploads a research paper.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="workflow-step">
+                    <span>2</span>
+                    <h3 class="h6 mt-3">Assign Reviewer</h3>
+                    <p class="small text-secondary mb-0">Admin assigns a reviewer.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="workflow-step">
+                    <span>3</span>
+                    <h3 class="h6 mt-3">Complete Review</h3>
+                    <p class="small text-secondary mb-0">Reviewer submits a recommendation.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="workflow-step">
+                    <span>4</span>
+                    <h3 class="h6 mt-3">Final Decision</h3>
+                    <p class="small text-secondary mb-0">Admin accepts or rejects the paper.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
