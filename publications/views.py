@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
+from django.db.models.deletion import ProtectedError
 
 from django.utils import timezone
 from accounts.models import User
@@ -81,8 +83,29 @@ def publication_delete(request, pk):
     publication = get_object_or_404(Publication, pk=pk)
 
     if request.method == "POST":
-        publication.delete()
-        return redirect("publication_list")
+        try:
+            publication.delete()
+
+            messages.success(
+                request,
+                "Publication deleted successfully.",
+            )
+
+            return redirect("publication_list")
+
+        except ProtectedError:
+            messages.error(
+                request,
+                (
+                    "This publication cannot be deleted because "
+                    "research papers have already been submitted to it."
+                ),
+            )
+
+            return redirect(
+                "publication_detail",
+                pk=publication.pk,
+            )
 
     return render(
         request,
