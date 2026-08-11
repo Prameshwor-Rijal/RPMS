@@ -4,12 +4,13 @@ from django.db import models
 
 class User(AbstractUser):
     class Role(models.TextChoices):
-        ADMIN = "ADMIN", "Admin"
+        JOURNAL_OWNER = "JOURNAL_OWNER", "Journal Owner"
+        EDITOR = "EDITOR", "Editor"
         AUTHOR = "AUTHOR", "Author"
         REVIEWER = "REVIEWER", "Reviewer"
 
     role = models.CharField(
-        max_length=10,
+        max_length=20,
         choices=Role.choices,
         default=Role.AUTHOR,
     )

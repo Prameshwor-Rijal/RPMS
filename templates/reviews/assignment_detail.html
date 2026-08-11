@@ -1,136 +1,306 @@
 {% extends "base.html" %}
+
 {% block title %}Review Assignment | RPMS{% endblock %}
+
 {% block content %}
-    <section class="page-header">
-        <div>
-            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                <span class="page-label">Review Assignment</span>
-                <span class="assignment-badge assignment-{{ assignment.status|lower }}">{{ assignment.get_status_display }}</span>
-            </div>
-            <h1 class="h2 fw-bold mb-2">{{ assignment.paper.title }}</h1>
-            <p class="text-secondary mb-0">Assigned for {{ assignment.paper.publication.name }}</p>
+
+<section class="page-header">
+    <div>
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            <span class="page-label">
+                Review Round {{ review_round.round_number }}
+            </span>
+
+            <span class="assignment-badge assignment-{{ assignment.status|lower }}">
+                {{ assignment.get_status_display }}
+            </span>
         </div>
-        <a href="{% url 'reviewer_assignment_list' %}"
-           class="btn btn-outline-secondary">Back to Assignments</a>
-    </section>
-    <div class="review-assignment-layout">
-        <div>
-            <section class="detail-card mb-4">
-                <h2 class="h5 fw-bold mb-4">Paper Information</h2>
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <span>Conference/Journal</span>
-                        <p>{{ assignment.paper.publication.name }}</p>
-                    </div>
-                    <div class="detail-item">
-                        <span>Research Category</span>
-                        <p>{{ assignment.paper.research_category }}</p>
-                    </div>
-                    <div class="detail-item detail-item-wide">
-                        <span>Abstract</span>
-                        <p>{{ assignment.paper.abstract }}</p>
-                    </div>
-                    <div class="detail-item detail-item-wide">
-                        <span>Keywords</span>
-                        <p>{{ assignment.paper.keywords }}</p>
-                    </div>
-                    <div class="detail-item">
-                        <span>Assignment Status</span>
-                        <p>{{ assignment.get_status_display }}</p>
-                    </div>
-                    <div class="detail-item">
-                        <span>Assigned At</span>
-                        <p>{{ assignment.assigned_at|date:"M d, Y H:i" }}</p>
-                    </div>
-                </div>
-            </section>
-            <section class="paper-files-card">
-                <h2 class="h5 fw-bold mb-3">Paper Files</h2>
-                <div class="paper-version-list">
-                    {% for version in assignment.paper.versions.all %}
-                        <div class="paper-version-item">
-                            <div>
-                                <strong>Version {{ version.version_number }}</strong>
-                                <small class="d-block text-secondary">Uploaded {{ version.uploaded_at|date:"M d, Y H:i" }}</small>
-                            </div>
-                            <a href="{{ version.file.url }}"
-                               target="_blank"
-                               rel="noopener"
-                               class="btn btn-sm btn-outline-primary">View PDF</a>
-                        </div>
-                    {% empty %}
-                        <p class="text-secondary mb-0">No paper files are available.</p>
-                    {% endfor %}
-                </div>
-            </section>
-        </div>
-        <aside>
-            <section class="review-action-card">
-                <h2 class="h5 fw-bold mb-3">Review Action</h2>
-                {% if assignment.status == "ASSIGNED" %}
-                    <p class="text-secondary">
-                        Accept the assignment to begin reviewing the paper,
-                        or decline it so another reviewer can be assigned.
-                    </p>
-                    <form method="post" class="review-action-form">
-                        {% csrf_token %}
-                        <div class="d-grid gap-2">
-                            <button type="submit" name="action" value="accept" class="btn btn-success">Accept Assignment</button>
-                            <button type="submit"
-                                    name="action"
-                                    value="decline"
-                                    class="btn btn-outline-danger">Decline Assignment</button>
-                        </div>
-                    </form>
-                {% elif assignment.status == "ACCEPTED" %}
-                    <p class="text-secondary">
-                        After reading the paper, complete the review by
-                        selecting your recommendation.
-                    </p>
-                    <form method="post" class="review-action-form">
-                        {% csrf_token %}
-                        <div class="d-grid gap-2">
-                            <button type="submit"
-                                    name="action"
-                                    value="complete_accept"
-                                    class="btn btn-success">Complete — Recommend Accept</button>
-                            <button type="submit"
-                                    name="action"
-                                    value="complete_reject"
-                                    class="btn btn-danger">Complete — Recommend Reject</button>
-                        </div>
-                    </form>
-                {% elif assignment.status == "COMPLETED" %}
-                    <div class="review-result-card">
-                        <span class="review-result-label">Recommendation</span>
-                        <strong class=" {% if assignment.recommendation == 'ACCEPT' %} text-success {% else %} text-danger {% endif %} ">
-                            {{ assignment.get_recommendation_display }}
-                        </strong>
-                        <small class="text-secondary">
-                            Completed
-                            {{ assignment.completed_at|date:"M d, Y H:i" }}
-                        </small>
-                    </div>
-                {% elif assignment.status == "DECLINED" %}
-                    <div class="review-result-card review-result-declined">
-                        <span class="review-result-label">Assignment Response</span>
-                        <strong class="text-danger">Declined</strong>
-                        <small class="text-secondary">
-                            Responded
-                            {{ assignment.responded_at|date:"M d, Y H:i" }}
-                        </small>
-                    </div>
-                {% endif %}
-            </section>
-            <section class="review-guidance-card mt-4">
-                <h2 class="h6 fw-bold">Reviewer Guidance</h2>
-                <ul class="small text-secondary mb-0">
-                    <li>Open and read the uploaded PDF.</li>
-                    <li>Complete only accepted assignments.</li>
-                    <li>Select Accept or Reject as your recommendation.</li>
-                    <li>The Admin makes the final paper decision.</li>
-                </ul>
-            </section>
-        </aside>
+
+        <h1 class="h2 fw-bold mb-2">
+            {{ assignment.paper.title }}
+        </h1>
+
+        <p class="text-secondary mb-0">
+            Assigned for {{ assignment.paper.publication.name }}
+        </p>
     </div>
+
+    <a href="{% url 'reviewer_assignment_list' %}"
+       class="btn btn-outline-secondary">
+        Back to Assignments
+    </a>
+</section>
+
+<div class="review-assignment-layout">
+
+    <div>
+        <section class="detail-card mb-4">
+            <h2 class="h5 fw-bold mb-4">
+                Paper Information
+            </h2>
+
+            <div class="detail-grid">
+
+                <div class="detail-item">
+                    <span>Conference/Journal</span>
+                    <p>
+                        {{ assignment.paper.publication.name }}
+                    </p>
+                </div>
+
+                <div class="detail-item">
+                    <span>Research Category</span>
+                    <p>
+                        {{ assignment.paper.research_category }}
+                    </p>
+                </div>
+
+                <div class="detail-item">
+                    <span>Review Round</span>
+                    <p>
+                        Round {{ review_round.round_number }}
+                    </p>
+                </div>
+
+                <div class="detail-item">
+                    <span>Paper Version</span>
+                    <p>
+                        Version {{ review_round.paper_version.version_number }}
+                    </p>
+                </div>
+
+                <div class="detail-item detail-item-wide">
+                    <span>Abstract</span>
+                    <p>
+                        {{ assignment.paper.abstract }}
+                    </p>
+                </div>
+
+                <div class="detail-item detail-item-wide">
+                    <span>Keywords</span>
+                    <p>
+                        {{ assignment.paper.keywords }}
+                    </p>
+                </div>
+
+                <div class="detail-item">
+                    <span>Assignment Status</span>
+                    <p>
+                        {{ assignment.get_status_display }}
+                    </p>
+                </div>
+
+                <div class="detail-item">
+                    <span>Assigned At</span>
+                    <p>
+                        {{ assignment.assigned_at|date:"M d, Y H:i" }}
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="paper-files-card">
+
+            <h2 class="h5 fw-bold mb-3">
+                Manuscript for This Review Round
+            </h2>
+
+            <div class="paper-version-list">
+
+                <div class="paper-version-item">
+                    <div>
+                        <strong>
+                            Version {{ review_round.paper_version.version_number }}
+                        </strong>
+
+                        <small class="d-block text-secondary">
+                            Uploaded
+                            {{ review_round.paper_version.uploaded_at|date:"M d, Y H:i" }}
+                        </small>
+                    </div>
+
+                    <a href="{% url 'paper_version_file' review_round.paper_version.id %}"
+                       target="_blank"
+                       rel="noopener"
+                       class="btn btn-sm btn-outline-primary">
+                        View PDF
+                    </a>
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    <aside>
+
+        <section class="review-action-card">
+
+            <h2 class="h5 fw-bold mb-3">
+                Review Action
+            </h2>
+
+            {% if assignment.status == "ASSIGNED" %}
+
+                <p class="text-secondary">
+                    Accept the assignment to begin reviewing the paper,
+                    or decline it so another reviewer can be assigned.
+                </p>
+
+                <form method="post" class="review-action-form">
+                    {% csrf_token %}
+
+                    <div class="d-grid gap-2">
+
+                        <button type="submit"
+                                name="action"
+                                value="accept"
+                                class="btn btn-success">
+                            Accept Assignment
+                        </button>
+
+                        <button type="submit"
+                                name="action"
+                                value="decline"
+                                class="btn btn-outline-danger">
+                            Decline Assignment
+                        </button>
+
+                    </div>
+                </form>
+
+            {% elif assignment.status == "ACCEPTED" %}
+
+                <p class="text-secondary">
+                    Review the manuscript and provide your recommendation.
+                    Comments are required when requesting a revision.
+                </p>
+
+                <form method="post" class="review-action-form">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+
+                        <label for="comments"
+                               class="form-label">
+                            Reviewer Comments
+                        </label>
+
+                        <textarea
+                            name="comments"
+                            id="comments"
+                            rows="6"
+                            class="form-control"
+                            placeholder="Write your review comments here..."
+                        ></textarea>
+
+                        <div class="form-text">
+                            Explain any corrections or revisions required
+                            from the Author.
+                        </div>
+
+                    </div>
+
+                    <div class="d-grid gap-2">
+
+                        <button type="submit"
+                                name="action"
+                                value="complete_accept"
+                                class="btn btn-success">
+                            Recommend Accept
+                        </button>
+
+                        <button type="submit"
+                                name="action"
+                                value="complete_revision"
+                                class="btn btn-warning">
+                            Request Revision
+                        </button>
+
+                        <button type="submit"
+                                name="action"
+                                value="complete_reject"
+                                class="btn btn-danger">
+                            Recommend Reject
+                        </button>
+
+                    </div>
+                </form>
+
+            {% elif assignment.status == "COMPLETED" %}
+
+                <div class="review-result-card">
+
+                    <span class="review-result-label">
+                        Recommendation
+                    </span>
+
+                    <strong>
+                        {{ assignment.get_recommendation_display }}
+                    </strong>
+
+                    {% if assignment.comments %}
+
+                        <hr>
+
+                        <span class="review-result-label">
+                            Reviewer Comments
+                        </span>
+
+                        <p class="mb-2">
+                            {{ assignment.comments|linebreaksbr }}
+                        </p>
+
+                    {% endif %}
+
+                    <small class="text-secondary">
+                        Completed
+                        {{ assignment.completed_at|date:"M d, Y H:i" }}
+                    </small>
+
+                </div>
+
+            {% elif assignment.status == "DECLINED" %}
+
+                <div class="review-result-card review-result-declined">
+
+                    <span class="review-result-label">
+                        Assignment Response
+                    </span>
+
+                    <strong class="text-danger">
+                        Declined
+                    </strong>
+
+                    <small class="text-secondary">
+                        Responded
+                        {{ assignment.responded_at|date:"M d, Y H:i" }}
+                    </small>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+        <section class="review-guidance-card mt-4">
+
+            <h2 class="h6 fw-bold">
+                Reviewer Guidance
+            </h2>
+
+            <ul class="small text-secondary mb-0">
+                <li>Review only the manuscript version assigned to this round.</li>
+                <li>Accept the assignment before submitting a recommendation.</li>
+                <li>Recommend Accept, Reject, or Request Revision.</li>
+                <li>Provide clear comments when requesting a revision.</li>
+                <li>The Editor makes the official final decision.</li>
+            </ul>
+
+        </section>
+
+    </aside>
+
+</div>
+
 {% endblock %}

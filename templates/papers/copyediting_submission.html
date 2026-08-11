@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <div class="mb-4">
+        <span class="page-label">
+            Copyediting
+        </span>
+
+        <h1 class="h3 fw-bold mt-2 mb-1">
+            Submit Corrected Copy
+        </h1>
+
+        <p class="text-muted mb-0">
+            {{ paper.title }}
+        </p>
+    </div>
+
+    <div class="detail-card mb-4">
+
+        <div class="detail-item">
+            <span>Editor Correction Request</span>
+
+            <p class="mb-0">
+                {{ copyediting.correction_note|linebreaksbr }}
+            </p>
+        </div>
+
+    </div>
+
+    <div class="detail-card">
+
+        <form
+            method="post"
+            enctype="multipart/form-data"
+        >
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label
+                    for="{{ form.paper_file.id_for_label }}"
+                    class="form-label fw-semibold"
+                >
+                    {{ form.paper_file.label }}
+                </label>
+
+                {{ form.paper_file }}
+
+                {% if form.paper_file.errors %}
+                    <div class="text-danger mt-2">
+                        {{ form.paper_file.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label
+                    for="{{ form.author_note.id_for_label }}"
+                    class="form-label fw-semibold"
+                >
+                    {{ form.author_note.label }}
+                </label>
+
+                {{ form.author_note }}
+
+                {% if form.author_note.errors %}
+                    <div class="text-danger mt-2">
+                        {{ form.author_note.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex gap-2">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Submit Corrected Copy
+                </button>
+
+                <a
+                    href="{% url 'paper_detail' paper.pk %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

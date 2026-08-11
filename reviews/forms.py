@@ -10,7 +10,13 @@ class ReviewerAssignmentForm(forms.ModelForm):
         model = ReviewerAssignment
         fields = ("reviewer",)
 
-    def __init__(self, *args, paper=None, **kwargs):
+    def __init__(
+        self,
+        *args,
+        paper=None,
+        review_round=None,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
 
         reviewers = User.objects.filter(
@@ -18,7 +24,20 @@ class ReviewerAssignmentForm(forms.ModelForm):
             is_active=True,
         )
 
-        if paper:
+        if review_round:
+            assigned_reviewer_ids = (
+                review_round.reviewer_assignments.values_list(
+                    "reviewer_id",
+                    flat=True,
+                )
+            )
+
+            reviewers = reviewers.exclude(
+                id__in=assigned_reviewer_ids,
+            )
+
+        elif paper:
+            # Temporary compatibility with the old assignment view.
             assigned_reviewer_ids = (
                 paper.reviewer_assignments.values_list(
                     "reviewer_id",

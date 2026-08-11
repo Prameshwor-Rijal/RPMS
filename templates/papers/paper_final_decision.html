@@ -1,78 +1,160 @@
 {% extends "base.html" %}
+
 {% block title %}Final Paper Decision | RPMS{% endblock %}
+
 {% block content %}
-    <section class="page-header">
-        <div>
-            <span class="page-label">Editorial Decision</span>
-            <h1 class="h2 fw-bold mt-2 mb-2">Final Paper Decision</h1>
-            <p class="text-secondary mb-0">Accept or reject this research paper.</p>
-        </div>
-    </section>
-    <div class="workflow-form-layout">
-        <div class="form-page-card">
-            {% if not allow_accept %}
-                <div class="alert alert-warning">
-                    This paper cannot be accepted until a reviewer has
-                    completed the review. Rejection is still available.
+
+<section class="page-header">
+    <div>
+        <span class="page-label">
+            Editorial Decision
+        </span>
+
+        <h1 class="h2 fw-bold mt-2 mb-2">
+            Final Paper Decision
+        </h1>
+
+        <p class="text-secondary mb-0">
+            Record the official final decision for this research paper.
+        </p>
+    </div>
+</section>
+
+<div class="workflow-form-layout">
+
+    <div class="form-page-card">
+
+        <form method="post" class="rpms-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <p class="mb-0">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
                 </div>
             {% endif %}
-            <form method="post" class="rpms-form">
-                {% csrf_token %}
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {% for error in form.non_field_errors %}
-                            <p class="mb-0">{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-                {% for field in form %}
-                    <div class="mb-3">
-                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                        {{ field }}
-                        {% for error in field.errors %}
-                            <div class="text-danger small mt-1">{{ error }}</div>
-                        {% endfor %}
+
+            <!-- Final Decision -->
+            <div class="mb-3">
+                <label
+                    for="{{ form.status.id_for_label }}"
+                    class="form-label"
+                >
+                    {{ form.status.label }}
+                </label>
+
+                {{ form.status }}
+
+                {% for error in form.status.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ error }}
                     </div>
                 {% endfor %}
-                <div class="d-flex flex-wrap gap-2 pt-2">
-                    <button type="submit" class="btn btn-danger">Save Final Decision</button>
-                    <a href="{% url 'admin_paper_detail' paper.pk %}"
-                       class="btn btn-outline-secondary">Cancel</a>
+            </div>
+
+            <!-- Decision Note -->
+            <div class="mb-3">
+                <label
+                    for="{{ form.note.id_for_label }}"
+                    class="form-label"
+                >
+                    {{ form.note.label }}
+                </label>
+
+                {{ form.note }}
+
+                <div class="form-text">
+                    Optional note explaining the reason for the final decision.
                 </div>
-            </form>
-        </div>
-        <aside class="workflow-info-card">
-            <h2 class="h5 fw-bold">Decision Summary</h2>
-            <dl class="workflow-summary">
-                <div>
-                    <dt>Paper</dt>
-                    <dd>
-                        {{ paper.title }}
-                    </dd>
-                </div>
-                <div>
-                    <dt>Author</dt>
-                    <dd>
-                        {{ paper.corresponding_author.get_full_name|default:paper.corresponding_author.username }}
-                    </dd>
-                </div>
-                <div>
-                    <dt>Current Status</dt>
-                    <dd>
-                        <span class="status-badge status-{{ paper.status|lower }}">{{ paper.get_status_display }}</span>
-                    </dd>
-                </div>
-                <div>
-                    <dt>Acceptance Available</dt>
-                    <dd>
-                        {% if allow_accept %}
-                            <span class="text-success fw-semibold">Yes</span>
-                        {% else %}
-                            <span class="text-danger fw-semibold">No</span>
-                        {% endif %}
-                    </dd>
-                </div>
-            </dl>
-        </aside>
+
+                {% for error in form.note.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 pt-2">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Save Final Decision
+                </button>
+
+                <a
+                    href="{% url 'admin_paper_detail' paper.pk %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
     </div>
+
+    <aside class="workflow-info-card">
+
+        <h2 class="h5 fw-bold">
+            Decision Summary
+        </h2>
+
+        <dl class="workflow-summary">
+
+            <div>
+                <dt>Paper</dt>
+
+                <dd>
+                    {{ paper.title }}
+                </dd>
+            </div>
+
+            <div>
+                <dt>Author</dt>
+
+                <dd>
+                    {{ paper.corresponding_author.get_full_name|default:paper.corresponding_author.username }}
+                </dd>
+            </div>
+
+            <div>
+                <dt>Publication</dt>
+
+                <dd>
+                    {{ paper.publication.name }}
+                </dd>
+            </div>
+
+            <div>
+                <dt>Current Status</dt>
+
+                <dd>
+                    <span class="status-badge status-{{ paper.status|lower }}">
+                        {{ paper.get_status_display }}
+                    </span>
+                </dd>
+            </div>
+
+            <div>
+                <dt>Review Status</dt>
+
+                <dd>
+                    <span class="text-success fw-semibold">
+                        Review Completed
+                    </span>
+                </dd>
+            </div>
+
+        </dl>
+
+    </aside>
+
+</div>
+
 {% endblock %}

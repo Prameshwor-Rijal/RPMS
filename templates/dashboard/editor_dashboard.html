@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Editor Dashboard | RPMS{% endblock %}
+
+{% block content %}
+<section class="dashboard-header mb-4">
+    <div>
+        <span class="dashboard-role-label">Editorial Workspace</span>
+
+        <h1 class="display-6 fw-bold mt-2 mb-2">
+            Editor Dashboard
+        </h1>
+
+        <p class="text-secondary mb-0">
+            Screen submitted papers, assign Reviewers,
+            track reviews and manage editorial decisions.
+        </p>
+    </div>
+
+    <div class="dashboard-user-card">
+        <span class="dashboard-avatar">
+            {{ user.username|first|upper }}
+        </span>
+
+        <div>
+            <p class="fw-semibold mb-0">
+                {{ user.get_full_name|default:user.username }}
+            </p>
+
+            <small class="text-secondary">
+                Editor
+            </small>
+        </div>
+    </div>
+</section>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="dashboard-card h-100">
+            <div class="dashboard-card-icon">01</div>
+
+            <h2 class="h5 fw-bold">
+                Submitted Papers
+            </h2>
+
+            <p class="text-secondary">
+                Review new submissions, perform initial screening
+                and manage papers through the editorial workflow.
+            </p>
+
+            <a
+                href="{% url 'admin_paper_list' %}"
+                class="btn btn-primary mt-auto"
+            >
+                Manage Papers
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="dashboard-card h-100">
+            <div class="dashboard-card-icon">02</div>
+
+            <h2 class="h5 fw-bold">
+                Review Workflow
+            </h2>
+
+            <p class="text-secondary">
+                Assign Reviewers, monitor review progress,
+                handle revisions and make final decisions.
+            </p>
+
+            <a
+                href="{% url 'editor_review_workflow' %}"
+                class="btn btn-outline-primary mt-auto"
+            >
+                View Review Workflow
+            </a>
+        </div>
+    </div>
+</div>
+
+<section class="mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <span class="dashboard-role-label">
+                Assigned Publications
+            </span>
+
+            <h2 class="h4 fw-bold mt-2 mb-1">
+                My Journals and Conferences
+            </h2>
+
+            <p class="text-secondary mb-0">
+                Publications where you are assigned as an Editor.
+            </p>
+        </div>
+    </div>
+
+    <div class="detail-card">
+
+        {% if assigned_publications %}
+
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Lifecycle</th>
+                            <th>Submission Status</th>
+                            <th>Review Deadline</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for publication in assigned_publications %}
+
+                            <tr>
+                                <td>
+                                    <strong>
+                                        {{ publication.name }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ publication.get_publication_type_display }}
+                                </td>
+
+                                <td>
+                                    {{ publication.get_lifecycle_status_display }}
+                                </td>
+
+                                <td>
+                                    {{ publication.submission_status_display }}
+                                </td>
+
+                                <td>
+                                    {{ publication.review_deadline|date:"M d, Y" }}
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+
+        {% else %}
+
+            <p class="text-secondary mb-0">
+                No Journals or Conferences have been assigned to you.
+            </p>
+
+        {% endif %}
+
+    </div>
+</section>
+
+<section class="dashboard-help mt-5">
+    <div>
+        <h2 class="h5 fw-bold mb-2">
+            Editorial Workflow
+        </h2>
+
+        <p class="text-secondary mb-0">
+            Screen submission → Assign Reviewer →
+            Review / Revision → Final decision →
+            Copyediting → Production
+        </p>
+    </div>
+</section>
+{% endblock %}

@@ -1,8 +1,8 @@
-from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.db.models.deletion import ProtectedError
-
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+
 from accounts.models import User
 from dashboard.decorators import role_required
 
@@ -10,9 +10,11 @@ from .forms import PublicationForm
 from .models import Publication
 
 
-@role_required([User.Role.ADMIN])
+@role_required([User.Role.JOURNAL_OWNER])
 def publication_list(request):
-    publications = Publication.objects.all()
+    publications = Publication.objects.filter(
+        owner=request.user,
+    )
 
     return render(
         request,
@@ -26,7 +28,7 @@ def available_publications(request):
     today = timezone.localdate()
 
     publications = Publication.objects.filter(
-        status=Publication.Status.OPEN,
+        lifecycle_status=Publication.LifecycleStatus.ACTIVE,
         submission_open_date__lte=today,
         submission_deadline__gte=today,
     ).order_by("submission_deadline")
@@ -38,9 +40,13 @@ def available_publications(request):
     )
 
 
-@role_required([User.Role.ADMIN])
+@role_required([User.Role.JOURNAL_OWNER])
 def publication_detail(request, pk):
-    publication = get_object_or_404(Publication, pk=pk)
+    publication = get_object_or_404(
+        Publication,
+        pk=pk,
+        owner=request.user,
+    )
 
     return render(
         request,
@@ -49,9 +55,13 @@ def publication_detail(request, pk):
     )
 
 
-@role_required([User.Role.ADMIN])
+@role_required([User.Role.JOURNAL_OWNER])
 def publication_update(request, pk):
-    publication = get_object_or_404(Publication, pk=pk)
+    publication = get_object_or_404(
+        Publication,
+        pk=pk,
+        owner=request.user,
+    )
 
     if request.method == "POST":
         form = PublicationForm(
@@ -61,12 +71,20 @@ def publication_update(request, pk):
 
         if form.is_valid():
             form.save()
+
+            messages.success(
+                request,
+                "Publication updated successfully.",
+            )
+
             return redirect(
                 "publication_detail",
                 pk=publication.pk,
             )
     else:
-        form = PublicationForm(instance=publication)
+        form = PublicationForm(
+            instance=publication,
+        )
 
     return render(
         request,
@@ -78,9 +96,13 @@ def publication_update(request, pk):
     )
 
 
-@role_required([User.Role.ADMIN])
+@role_required([User.Role.JOURNAL_OWNER])
 def publication_delete(request, pk):
-    publication = get_object_or_404(Publication, pk=pk)
+    publication = get_object_or_404(
+        Publication,
+        pk=pk,
+        owner=request.user,
+    )
 
     if request.method == "POST":
         try:
@@ -114,15 +136,24 @@ def publication_delete(request, pk):
     )
 
 
-@role_required([User.Role.ADMIN])
+@role_required([User.Role.JOURNAL_OWNER])
 def publication_create(request):
     if request.method == "POST":
         form = PublicationForm(request.POST)
 
         if form.is_valid():
             publication = form.save(commit=False)
+
             publication.created_by = request.user
+            publication.owner = request.user
+
             publication.save()
+            form.save_m2m()
+
+            messages.success(
+                request,
+                "Publication created successfully.",
+            )
 
             return redirect("publication_list")
     else:
@@ -133,3 +164,4 @@ def publication_create(request):
         "publications/publication_form.html",
         {"form": form},
     )
+
