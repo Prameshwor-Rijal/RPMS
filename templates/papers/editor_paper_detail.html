@@ -5,8 +5,11 @@
 {% block content %}
 
 <section class="page-header">
+
     <div>
+
         <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+
             <span class="page-label">
                 Submission #{{ paper.id }}
             </span>
@@ -14,6 +17,7 @@
             <span class="status-badge status-{{ paper.status|lower }}">
                 {{ paper.get_status_display }}
             </span>
+
         </div>
 
         <h1 class="h2 fw-bold mb-2">
@@ -24,115 +28,192 @@
             Submitted by
             {{ paper.corresponding_author.get_full_name|default:paper.corresponding_author.username }}
         </p>
+
     </div>
 
+
     <a
-        href="{% url 'admin_paper_list' %}"
+        href="{% url 'editor_paper_list' %}"
         class="btn btn-outline-secondary"
     >
         Back to Papers
     </a>
+
 </section>
 
-<div class="admin-paper-layout">
+
+<div class="editor-paper-layout">
 
     <div>
 
         <!-- Paper Information -->
+
         <section class="detail-card mb-4">
-            <h2 class="h5 fw-bold mb-4">
-                Paper Information
-            </h2>
+
+            <div class="mb-4">
+
+                <span class="page-label">
+                    Editor Workspace
+                </span>
+
+                <h2 class="h5 fw-bold mt-2 mb-0">
+                    Paper Information
+                </h2>
+
+            </div>
+
 
             <div class="detail-grid">
 
                 <div class="detail-item">
-                    <span>Author</span>
+
+                    <span>
+                        Author
+                    </span>
 
                     <p>
                         {{ paper.corresponding_author.get_full_name|default:paper.corresponding_author.username }}
                     </p>
+
                 </div>
 
+
                 <div class="detail-item">
-                    <span>Email</span>
+
+                    <span>
+                        Email
+                    </span>
 
                     <p>
                         {{ paper.corresponding_author.email }}
                     </p>
+
                 </div>
 
+
                 <div class="detail-item">
-                    <span>Conference/Journal</span>
+
+                    <span>
+                        Journal / Conference
+                    </span>
 
                     <p>
                         {{ paper.publication.name }}
                     </p>
+
                 </div>
 
+
                 <div class="detail-item">
-                    <span>Research Category</span>
+
+                    <span>
+                        Research Category
+                    </span>
 
                     <p>
                         {{ paper.research_category }}
                     </p>
+
                 </div>
 
+
                 <div class="detail-item detail-item-wide">
-                    <span>Abstract</span>
+
+                    <span>
+                        Abstract
+                    </span>
 
                     <p>
                         {{ paper.abstract }}
                     </p>
+
                 </div>
 
+
                 <div class="detail-item detail-item-wide">
-                    <span>Keywords</span>
+
+                    <span>
+                        Keywords
+                    </span>
 
                     <p>
                         {{ paper.keywords }}
                     </p>
+
                 </div>
 
+
                 <div class="detail-item">
-                    <span>Current Status</span>
+
+                    <span>
+                        Current Status
+                    </span>
 
                     <p class="mb-0">
+
                         {{ paper.get_status_display }}
 
                         {% if paper.is_review_overdue %}
+
                             <span class="badge bg-danger ms-2">
                                 Review Overdue
                             </span>
+
                         {% endif %}
+
                     </p>
+
                 </div>
 
+
                 <div class="detail-item">
-                    <span>Submitted At</span>
+
+                    <span>
+                        Submitted At
+                    </span>
 
                     <p>
+
                         {% if paper.submitted_at %}
+
                             {{ paper.submitted_at|date:"M d, Y H:i" }}
+
                         {% else %}
+
                             Not available
+
                         {% endif %}
+
                     </p>
+
                 </div>
 
             </div>
+
         </section>
 
+
         <!-- Current Review Round -->
+
         {% with current_round=paper.review_rounds.first %}
 
             {% if current_round %}
 
                 <section class="detail-card mb-4">
 
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                    <div
+                        class="
+                            d-flex
+                            flex-wrap
+                            justify-content-between
+                            align-items-center
+                            gap-2
+                            mb-4
+                        "
+                    >
 
                         <div>
+
                             <span class="page-label">
                                 Current Review
                             </span>
@@ -140,7 +221,9 @@
                             <h2 class="h5 fw-bold mt-2 mb-0">
                                 Review Round {{ current_round.round_number }}
                             </h2>
+
                         </div>
+
 
                         <span class="status-badge status-{{ current_round.status|lower }}">
                             {{ current_round.get_status_display }}
@@ -148,10 +231,11 @@
 
                     </div>
 
-                    <!-- Current Paper Version -->
+
                     <div class="paper-version-item mb-4">
 
                         <div>
+
                             <strong>
                                 Version {{ current_round.paper_version.version_number }}
                             </strong>
@@ -160,7 +244,9 @@
                                 Uploaded
                                 {{ current_round.paper_version.uploaded_at|date:"M d, Y H:i" }}
                             </small>
+
                         </div>
+
 
                         <a
                             href="{% url 'paper_version_file' current_round.paper_version.id %}"
@@ -173,10 +259,11 @@
 
                     </div>
 
-                    <!-- Current Assigned Reviewers -->
+
                     <h3 class="h6 fw-bold mb-3">
                         Assigned Reviewers
                     </h3>
+
 
                     {% with assignments=current_round.reviewer_assignments.all %}
 
@@ -187,13 +274,16 @@
                                 <table class="table align-middle mb-0">
 
                                     <thead>
+
                                         <tr>
                                             <th>Reviewer</th>
                                             <th>Expertise</th>
                                             <th>Status</th>
                                             <th>Recommendation</th>
                                         </tr>
+
                                     </thead>
+
 
                                     <tbody>
 
@@ -210,24 +300,34 @@
                                                 </td>
 
                                                 <td>
+
                                                     <span class="assignment-badge assignment-{{ assignment.status|lower }}">
                                                         {{ assignment.get_status_display }}
                                                     </span>
+
                                                 </td>
 
                                                 <td>
+
                                                     {% if assignment.recommendation %}
+
                                                         {{ assignment.get_recommendation_display }}
+
                                                     {% else %}
+
                                                         Not provided
+
                                                     {% endif %}
+
                                                 </td>
 
                                             </tr>
 
+
                                             {% if assignment.comments %}
 
                                                 <tr>
+
                                                     <td colspan="4">
 
                                                         <div class="small">
@@ -243,6 +343,7 @@
                                                         </div>
 
                                                     </td>
+
                                                 </tr>
 
                                             {% endif %}
@@ -260,7 +361,8 @@
                             <div class="border rounded p-3">
 
                                 <p class="text-secondary mb-0">
-                                    No Reviewers have been assigned to this review round yet.
+                                    No Reviewers have been assigned
+                                    to this review round yet.
                                 </p>
 
                             </div>
@@ -271,16 +373,18 @@
 
                 </section>
 
+
             {% else %}
 
                 <section class="detail-card mb-4">
 
                     <h2 class="h5 fw-bold mb-3">
-                        Review
+                        Peer Review
                     </h2>
 
                     <p class="text-secondary mb-0">
-                        This paper has not entered the review process yet.
+                        This paper has not entered the peer review
+                        process yet.
                     </p>
 
                 </section>
@@ -289,7 +393,9 @@
 
         {% endwith %}
 
+
         <!-- Previous Review / Revision History -->
+
         {% if paper.review_rounds.count > 1 %}
 
             <section class="detail-card mb-4">
@@ -306,13 +412,23 @@
 
                 </div>
 
+
                 {% for review_round in paper.review_rounds.all %}
 
                     {% if not forloop.first %}
 
                         <div class="border rounded p-3 mb-4">
 
-                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                            <div
+                                class="
+                                    d-flex
+                                    flex-wrap
+                                    justify-content-between
+                                    align-items-start
+                                    gap-2
+                                    mb-3
+                                "
+                            >
 
                                 <div>
 
@@ -332,7 +448,7 @@
 
                             </div>
 
-                            <!-- Previous Version -->
+
                             <div class="paper-version-item mb-3">
 
                                 <div>
@@ -359,7 +475,7 @@
 
                             </div>
 
-                            <!-- Previous Reviewer Assignments -->
+
                             {% for assignment in review_round.reviewer_assignments.all %}
 
                                 <div class="border rounded p-3 mb-2">
@@ -384,6 +500,7 @@
 
                                     </div>
 
+
                                     {% if assignment.recommendation %}
 
                                         <div class="mt-3">
@@ -399,6 +516,7 @@
                                         </div>
 
                                     {% endif %}
+
 
                                     {% if assignment.comments %}
 
@@ -416,29 +534,36 @@
 
                                     {% endif %}
 
+
                                     <small class="d-block text-secondary mt-3">
 
                                         Assigned:
                                         {{ assignment.assigned_at|date:"M d, Y H:i" }}
 
                                         {% if assignment.completed_at %}
+
                                             · Completed:
                                             {{ assignment.completed_at|date:"M d, Y H:i" }}
+
                                         {% endif %}
 
                                         {% if assignment.responded_at and not assignment.completed_at %}
+
                                             · Responded:
                                             {{ assignment.responded_at|date:"M d, Y H:i" }}
+
                                         {% endif %}
 
                                     </small>
 
                                 </div>
 
+
                             {% empty %}
 
                                 <p class="text-secondary mb-0">
-                                    No Reviewer assignments were recorded for this round.
+                                    No Reviewer assignments were
+                                    recorded for this round.
                                 </p>
 
                             {% endfor %}
@@ -455,27 +580,39 @@
 
     </div>
 
+
     <!-- Editor Workflow Actions -->
+
     <aside>
 
-        <section class="admin-action-card mb-4">
+        <section class="editor-action-card mb-4">
 
-            <h2 class="h5 fw-bold mb-3">
-                Workflow Actions
-            </h2>
+            <div class="mb-3">
+
+                <span class="page-label">
+                    Editor Workflow
+                </span>
+
+                <h2 class="h5 fw-bold mt-2 mb-0">
+                    Workflow Actions
+                </h2>
+
+            </div>
+
 
             <div class="d-grid gap-2">
 
                 {% if paper.status == "SUBMITTED" or paper.status == "UNDER_INITIAL_REVIEW" %}
 
                     <a
-                        href="{% url 'paper_initial_screening' paper.pk %}"
+                        href="{% url 'editor_paper_screening' paper.pk %}"
                         class="btn btn-primary"
                     >
                         Initial Screening
                     </a>
 
                 {% endif %}
+
 
                 {% if paper.status == "READY_FOR_REVIEW" or paper.status == "UNDER_REVIEW" %}
 
@@ -488,27 +625,28 @@
 
                 {% endif %}
 
+
                 {% if paper.status == "REVIEW_COMPLETED" %}
 
                     <a
                         href="{% url 'paper_final_decision' paper.pk %}"
                         class="btn btn-outline-danger"
                     >
-                        Make Decision
+                        Make Final Decision
                     </a>
 
                 {% endif %}
 
+
                 {% if paper.status == "REVISION_REQUIRED" %}
 
                     <div class="final-status-box status-revision_required">
-
                         Waiting for the Author to upload
                         a revised manuscript.
-
                     </div>
 
                 {% endif %}
+
 
                 {% if paper.status == "ACCEPTED" %}
 
@@ -516,6 +654,7 @@
                         method="post"
                         action="{% url 'start_copyediting' paper.pk %}"
                     >
+
                         {% csrf_token %}
 
                         <button
@@ -524,7 +663,9 @@
                         >
                             Start Copyediting
                         </button>
+
                     </form>
+
 
                 {% elif paper.status == "REJECTED" %}
 
@@ -532,19 +673,23 @@
                         Final Status: Rejected
                     </div>
 
+
                 {% elif paper.status == "COPYEDITING" %}
 
                     {% if paper.copyediting.status == "CORRECTION_SUBMITTED" %}
 
-                        <div class="alert alert-success mb-3">
-                            Author correction has been submitted.
-                            Review the corrected paper below.
+                        <div class="alert alert-success mb-2">
+                            The Author has submitted the corrected
+                            manuscript. Review it before completing
+                            copyediting.
                         </div>
+
 
                         <form
                             method="post"
                             action="{% url 'complete_copyediting' paper.pk %}"
                         >
+
                             {% csrf_token %}
 
                             <button
@@ -553,150 +698,255 @@
                             >
                                 Complete Copyediting
                             </button>
+
                         </form>
+
 
                     {% else %}
 
-                        <div class="alert alert-info mb-3">
-                            Copyediting is in progress.
+                        <div class="alert alert-info mb-2">
+                            Copyediting is in progress. If the paper
+                            needs no further correction, you can
+                            complete copyediting now.
                         </div>
+
+
+                        <form
+                            method="post"
+                            action="{% url 'complete_copyediting' paper.pk %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="btn btn-success w-100"
+                            >
+                                Complete Copyediting
+                            </button>
+
+                        </form>
+
 
                         <a
                             href="{% url 'request_copyediting_correction' paper.pk %}"
-                            class="btn btn-warning w-100"
+                            class="btn btn-outline-primary w-100"
                         >
-                            Request Copyediting Correction
+                            Request Author Correction
                         </a>
 
                     {% endif %}
 
+
+                {% elif paper.status == "COPYEDITING_CORRECTION_REQUIRED" %}
+
+                    <div class="alert alert-warning mb-0">
+                        Copyediting correction has been requested.
+                        Waiting for the Author to submit the
+                        corrected manuscript.
+                    </div>
+
+
+                {% elif paper.status == "READY_FOR_PRODUCTION" %}
+
+                    <div class="alert alert-success mb-0">
+                        Copyediting is complete. This paper is ready
+                        for the Journal Owner to start production.
+                    </div>
+
+
+                {% elif paper.status == "IN_PRODUCTION" %}
+
+                    <div class="alert alert-info mb-0">
+                        This paper is currently in production.
+                    </div>
+
+
+                {% elif paper.status == "PUBLISHED" %}
+
+                    <div class="alert alert-success mb-0">
+                        This paper has been published.
+                    </div>
+
                 {% endif %}
 
             </div>
 
         </section>
+
+
+        <!-- Final Decision Record -->
 
         {% if paper.final_decision %}
 
-        <section class="admin-action-card mb-4">
-
-            <div class="mb-3">
-                <span class="page-label">
-                    Official Decision
-                </span>
-
-                <h2 class="h5 fw-bold mt-2 mb-0">
-                    Final Decision Record
-                </h2>
-            </div>
-
-            <div class="detail-item mb-3">
-                <span>Decision</span>
-
-                <p class="fw-semibold mb-0">
-                    {{ paper.final_decision.get_decision_display }}
-                </p>
-            </div>
-
-            <div class="detail-item mb-3">
-                <span>Decided By</span>
-
-                <p class="mb-0">
-                    {{ paper.final_decision.decided_by.get_full_name|default:paper.final_decision.decided_by.username }}
-                </p>
-            </div>
-
-            <div class="detail-item mb-3">
-                <span>Decided At</span>
-
-                <p class="mb-0">
-                    {{ paper.final_decision.decided_at|date:"M d, Y H:i" }}
-                </p>
-            </div>
-
-            {% if paper.final_decision.note %}
-                <div class="detail-item">
-                    <span>Decision Note</span>
-
-                    <p class="mb-0">
-                        {{ paper.final_decision.note|linebreaksbr }}
-                    </p>
-                </div>
-            {% endif %}
-
-        </section>
-
-        {% if paper.copyediting %}
-
-            <section class="admin-action-card mb-4">
+            <section class="editor-action-card mb-4">
 
                 <div class="mb-3">
+
                     <span class="page-label">
-                        Copyediting
+                        Official Decision
                     </span>
 
                     <h2 class="h5 fw-bold mt-2 mb-0">
-                        Copyediting Record
+                        Final Decision Record
                     </h2>
+
                 </div>
+
 
                 <div class="detail-item mb-3">
-                    <span>Status</span>
+
+                    <span>
+                        Decision
+                    </span>
 
                     <p class="fw-semibold mb-0">
-                        {{ paper.copyediting.get_status_display }}
+                        {{ paper.final_decision.get_decision_display }}
                     </p>
+
                 </div>
 
-                {% if paper.copyediting.correction_note %}
 
-                    <div class="detail-item mb-3">
-                        <span>Correction Request</span>
+                <div class="detail-item mb-3">
 
-                        <p class="mb-0">
-                            {{ paper.copyediting.correction_note|linebreaksbr }}
-                        </p>
-                    </div>
+                    <span>
+                        Decided By
+                    </span>
 
-                {% endif %}
+                    <p class="mb-0">
+                        {{ paper.final_decision.decided_by.get_full_name|default:paper.final_decision.decided_by.username }}
+                    </p>
 
-                {% if paper.copyediting.corrected_version %}
+                </div>
 
-                    <div class="detail-item mb-3">
-                        <span>Corrected Paper</span>
 
-                        <p class="mb-2">
-                            Version {{ paper.copyediting.corrected_version.version_number }}
-                        </p>
+                <div class="detail-item mb-3">
 
-                        <a
-                            href="{% url 'paper_version_file' paper.copyediting.corrected_version.id %}"
-                            target="_blank"
-                            class="btn btn-outline-primary btn-sm"
-                        >
-                            View Corrected PDF
-                        </a>
-                    </div>
+                    <span>
+                        Decided At
+                    </span>
 
-                {% endif %}
+                    <p class="mb-0">
+                        {{ paper.final_decision.decided_at|date:"M d, Y H:i" }}
+                    </p>
 
-                {% if paper.copyediting.author_note %}
+                </div>
+
+
+                {% if paper.final_decision.note %}
 
                     <div class="detail-item">
-                        <span>Author Note</span>
+
+                        <span>
+                            Decision Note
+                        </span>
 
                         <p class="mb-0">
-                            {{ paper.copyediting.author_note|linebreaksbr }}
+                            {{ paper.final_decision.note|linebreaksbr }}
                         </p>
+
                     </div>
 
                 {% endif %}
 
             </section>
 
+
+            {% if paper.copyediting %}
+
+                <section class="editor-action-card mb-4">
+
+                    <div class="mb-3">
+
+                        <span class="page-label">
+                            Copyediting
+                        </span>
+
+                        <h2 class="h5 fw-bold mt-2 mb-0">
+                            Copyediting Record
+                        </h2>
+
+                    </div>
+
+
+                    <div class="detail-item mb-3">
+
+                        <span>
+                            Status
+                        </span>
+
+                        <p class="fw-semibold mb-0">
+                            {{ paper.copyediting.get_status_display }}
+                        </p>
+
+                    </div>
+
+
+                    {% if paper.copyediting.correction_note %}
+
+                        <div class="detail-item mb-3">
+
+                            <span>
+                                Correction Request
+                            </span>
+
+                            <p class="mb-0">
+                                {{ paper.copyediting.correction_note|linebreaksbr }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if paper.copyediting.corrected_version %}
+
+                        <div class="detail-item mb-3">
+
+                            <span>
+                                Corrected Paper
+                            </span>
+
+                            <p class="mb-2">
+                                Version {{ paper.copyediting.corrected_version.version_number }}
+                            </p>
+
+                            <a
+                                href="{% url 'paper_version_file' paper.copyediting.corrected_version.id %}"
+                                target="_blank"
+                                rel="noopener"
+                                class="btn btn-outline-primary btn-sm"
+                            >
+                                View Corrected PDF
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if paper.copyediting.author_note %}
+
+                        <div class="detail-item">
+
+                            <span>
+                                Author Note
+                            </span>
+
+                            <p class="mb-0">
+                                {{ paper.copyediting.author_note|linebreaksbr }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+            {% endif %}
+
         {% endif %}
 
-    {% endif %}
     </aside>
 
 </div>

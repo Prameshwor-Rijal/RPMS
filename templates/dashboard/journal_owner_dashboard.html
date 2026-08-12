@@ -3,26 +3,36 @@
 {% block title %}Journal Owner Dashboard | RPMS{% endblock %}
 
 {% block content %}
-<section class="dashboard-header mb-4">
+
+<!-- Dashboard Header -->
+
+<section class="dashboard-header">
+
     <div>
-        <span class="dashboard-role-label">Publisher Workspace</span>
+
+        <span class="page-label">
+            Journal Owner
+        </span>
 
         <h1 class="display-6 fw-bold mt-2 mb-2">
             Journal Owner Dashboard
         </h1>
 
         <p class="text-secondary mb-0">
-            Manage your journals and conferences, assign Editors,
-            and monitor the publication workflow.
+            Manage your Journals and Conferences, Editors,
+            Reviewers, and publication workflow.
         </p>
+
     </div>
 
     <div class="dashboard-user-card">
+
         <span class="dashboard-avatar">
             {{ user.username|first|upper }}
         </span>
 
         <div>
+
             <p class="fw-semibold mb-0">
                 {{ user.get_full_name|default:user.username }}
             </p>
@@ -30,21 +40,33 @@
             <small class="text-secondary">
                 Journal Owner
             </small>
+
         </div>
+
     </div>
+
 </section>
 
-<div class="row g-4">
-    <div class="col-md-6">
+<!-- Management Cards -->
+
+<div class="row g-4 mb-5">
+
+    <!-- Publications -->
+
+    <div class="col-md-6 col-lg-4">
+
         <div class="dashboard-card h-100">
-            <div class="dashboard-card-icon">01</div>
+
+            <div class="dashboard-card-icon">
+                01
+            </div>
 
             <h2 class="h5 fw-bold">
                 Journals & Conferences
             </h2>
 
             <p class="text-secondary">
-                Create and manage journals and conferences,
+                Create and manage Journals and Conferences,
                 including submission and review deadlines.
             </p>
 
@@ -54,35 +76,80 @@
             >
                 Manage Publications
             </a>
+
         </div>
+
     </div>
 
-    <div class="col-md-6">
+    <!-- Editorial Management -->
+
+    <div class="col-md-6 col-lg-4">
+
         <div class="dashboard-card h-100">
-            <div class="dashboard-card-icon">02</div>
+
+            <div class="dashboard-card-icon">
+                02
+            </div>
 
             <h2 class="h5 fw-bold">
                 Editorial Management
             </h2>
 
             <p class="text-secondary">
-                Editors will be assigned to specific journals
-                and conferences managed by you.
+                View and manage Editors assigned to your
+                Journals and Conferences.
             </p>
 
-            <button
-                class="btn btn-outline-secondary mt-auto"
-                disabled
+            <a
+                href="{% url 'editorial_management' %}"
+                class="btn btn-outline-primary mt-auto"
             >
-                Editor Management
-            </button>
+                Manage Editorial Team
+            </a>
+
         </div>
+
     </div>
+
+    <!-- Editor & Reviewer Accounts -->
+
+    <div class="col-md-6 col-lg-4">
+
+        <div class="dashboard-card h-100">
+
+            <div class="dashboard-card-icon">
+                03
+            </div>
+
+            <h2 class="h5 fw-bold">
+                Editor & Reviewer Accounts
+            </h2>
+
+            <p class="text-secondary">
+                Create and manage Editor and Reviewer accounts
+                belonging to your publication environment.
+            </p>
+
+            <a
+                href="{% url 'managed_account_list' %}"
+                class="btn btn-outline-primary mt-auto"
+            >
+                Manage Accounts
+            </a>
+
+        </div>
+
+    </div>
+
 </div>
 
-<section class="mt-5">
-    <div class="mb-3">
-        <span class="dashboard-role-label">
+<!-- Submission Monitoring -->
+
+<section class="mb-5">
+
+    <div class="mb-4">
+
+        <span class="page-label">
             Submission Monitoring
         </span>
 
@@ -93,15 +160,19 @@
         <p class="text-secondary mb-0">
             Monitor papers submitted to your Journals and Conferences.
         </p>
+
     </div>
 
     <div class="detail-card">
+
         {% if monitored_papers %}
 
             <div class="table-responsive">
+
                 <table class="table align-middle mb-0">
 
                     <thead>
+
                         <tr>
                             <th>Paper</th>
                             <th>Publication</th>
@@ -110,15 +181,21 @@
                             <th>Submitted</th>
                             <th>Action</th>
                         </tr>
+
                     </thead>
 
                     <tbody>
+
                         {% for paper in monitored_papers %}
+
                             <tr>
+
                                 <td>
+
                                     <strong>
                                         {{ paper.title }}
                                     </strong>
+
                                 </td>
 
                                 <td>
@@ -130,32 +207,46 @@
                                 </td>
 
                                 <td>
+
                                     <span class="status-badge status-{{ paper.status|lower }}">
                                         {{ paper.get_status_display }}
                                     </span>
+
                                 </td>
 
                                 <td>
+
                                     {% if paper.submitted_at %}
+
                                         {{ paper.submitted_at|date:"M d, Y H:i" }}
+
                                     {% else %}
+
                                         -
+
                                     {% endif %}
+
                                 </td>
 
                                 <td>
+
                                     <a
                                         href="{% url 'journal_owner_paper_detail' paper.pk %}"
                                         class="btn btn-sm btn-outline-primary"
                                     >
                                         View
                                     </a>
+
                                 </td>
+
                             </tr>
+
                         {% endfor %}
+
                     </tbody>
 
                 </table>
+
             </div>
 
         {% else %}
@@ -165,20 +256,30 @@
             </p>
 
         {% endif %}
+
     </div>
+
 </section>
 
-<section class="dashboard-help mt-5">
-    <div>
-        <h2 class="h5 fw-bold mb-2">
-            Journal Owner Workflow
-        </h2>
+<!-- Journal Owner Workflow -->
 
-        <p class="text-secondary mb-0">
-            Create publication → Assign Editor →
-            Monitor submissions → Track publication progress
-        </p>
-    </div>
+<section class="detail-card">
+
+    <span class="page-label">
+        Journal Owner Workflow
+    </span>
+
+    <h2 class="h5 fw-bold mt-2 mb-2">
+        Publication Management Flow
+    </h2>
+
+    <p class="text-secondary mb-0">
+        Create publication → Create Editor and Reviewer accounts →
+        Assign Editors → Monitor submissions →
+        Track review and copyediting → Manage production →
+        Publish papers
+    </p>
+
 </section>
 
 {% endblock %}

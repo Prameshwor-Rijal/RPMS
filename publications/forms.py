@@ -59,12 +59,36 @@ class PublicationForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        owner = kwargs.pop(
+            "owner",
+            None,
+        )
+
         super().__init__(*args, **kwargs)
 
-        self.fields["editors"].queryset = User.objects.filter(
-            role=User.Role.EDITOR,
-            is_active=True,
-        ).order_by("username")
+        # When editing an existing publication, use its owner
+        # if the owner was not explicitly passed to the form.
+        if (
+            owner is None
+            and self.instance.pk
+        ):
+            owner = self.instance.owner
+
+        # Journal Owners can only assign Editors that belong
+        # to their own managed account environment.
+        if owner:
+            self.fields["editors"].queryset = (
+                User.objects.filter(
+                    role=User.Role.EDITOR,
+                    is_active=True,
+                    created_by=owner,
+                )
+                .order_by("username")
+            )
+        else:
+            self.fields[
+                "editors"
+            ].queryset = User.objects.none()
 
         if not self.instance.pk:
             self.fields[
@@ -83,12 +107,15 @@ class PublicationForm(forms.ModelForm):
         open_date = cleaned_data.get(
             "submission_open_date"
         )
+
         submission_deadline = cleaned_data.get(
             "submission_deadline"
         )
+
         review_deadline = cleaned_data.get(
             "review_deadline"
         )
+
         event_date = cleaned_data.get(
             "event_date"
         )
@@ -129,7 +156,10 @@ class PublicationForm(forms.ModelForm):
         ):
             self.add_error(
                 "submission_open_date",
-                "Submission opening date cannot be in the past.",
+                (
+                    "Submission opening date cannot "
+                    "be in the past."
+                ),
             )
 
         if (
@@ -139,7 +169,10 @@ class PublicationForm(forms.ModelForm):
         ):
             self.add_error(
                 "submission_deadline",
-                "Submission deadline must be after the opening date.",
+                (
+                    "Submission deadline must be "
+                    "after the opening date."
+                ),
             )
 
         if (
@@ -149,7 +182,10 @@ class PublicationForm(forms.ModelForm):
         ):
             self.add_error(
                 "review_deadline",
-                "Review deadline must be after the submission deadline.",
+                (
+                    "Review deadline must be after "
+                    "the submission deadline."
+                ),
             )
 
         if (
@@ -161,7 +197,10 @@ class PublicationForm(forms.ModelForm):
         ):
             self.add_error(
                 "event_date",
-                "Conference date must be after the review deadline.",
+                (
+                    "Conference date must be after "
+                    "the review deadline."
+                ),
             )
 
         return cleaned_data

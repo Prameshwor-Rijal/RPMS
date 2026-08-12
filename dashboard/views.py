@@ -3,28 +3,49 @@ from django.shortcuts import redirect, render
 
 from accounts.models import User
 from papers.models import Paper
+
 from .decorators import role_required
 
 
 def home(request):
-    return render(request, "home.html")
+    return render(
+        request,
+        "home.html",
+    )
 
 
 @login_required
 def dashboard_redirect(request):
-    if request.user.is_superuser or request.user.role == User.Role.JOURNAL_OWNER:
-        return redirect("journal_owner_dashboard")
+    # Technical System Admin uses Django Admin,
+    # not any RPMS business-role dashboard.
+    if request.user.is_superuser:
+        return redirect(
+            "/admin/",
+        )
+
+    if request.user.role == User.Role.JOURNAL_OWNER:
+        return redirect(
+            "journal_owner_dashboard",
+        )
 
     if request.user.role == User.Role.EDITOR:
-        return redirect("editor_dashboard")
+        return redirect(
+            "editor_dashboard",
+        )
 
     if request.user.role == User.Role.REVIEWER:
-        return redirect("reviewer_dashboard")
+        return redirect(
+            "reviewer_dashboard",
+        )
 
     if request.user.role == User.Role.AUTHOR:
-        return redirect("author_dashboard")
+        return redirect(
+            "author_dashboard",
+        )
 
-    return redirect("home")
+    return redirect(
+        "home",
+    )
 
 
 @role_required([User.Role.JOURNAL_OWNER])
@@ -37,7 +58,9 @@ def journal_owner_dashboard(request):
             "publication",
             "corresponding_author",
         )
-        .order_by("-submitted_at")
+        .order_by(
+            "-submitted_at",
+        )
     )
 
     return render(
@@ -52,9 +75,12 @@ def journal_owner_dashboard(request):
 @role_required([User.Role.EDITOR])
 def editor_dashboard(request):
     assigned_publications = (
-        request.user.assigned_publications
+        request.user
+        .assigned_publications
         .all()
-        .order_by("name")
+        .order_by(
+            "name",
+        )
     )
 
     return render(
@@ -64,10 +90,6 @@ def editor_dashboard(request):
             "assigned_publications": assigned_publications,
         },
     )
-
-@login_required
-def admin_dashboard(request):
-    return redirect("dashboard_redirect")
 
 
 @role_required([User.Role.AUTHOR])

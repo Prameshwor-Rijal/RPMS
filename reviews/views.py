@@ -41,7 +41,7 @@ def reviewer_assignment_create(request, paper_pk):
         )
 
         return redirect(
-            "admin_paper_detail",
+            "editor_paper_detail",
             pk=paper.pk,
         )
 
@@ -54,11 +54,14 @@ def reviewer_assignment_create(request, paper_pk):
     if latest_version is None:
         messages.error(
             request,
-            "This paper does not have a manuscript version to review.",
+            (
+                "This paper does not have a "
+                "manuscript version to review."
+            ),
         )
 
         return redirect(
-            "admin_paper_detail",
+            "editor_paper_detail",
             pk=paper.pk,
         )
 
@@ -71,7 +74,8 @@ def reviewer_assignment_create(request, paper_pk):
 
     if review_round is None:
         latest_round_number = (
-            paper.review_rounds.order_by(
+            paper.review_rounds
+            .order_by(
                 "-round_number",
             )
             .values_list(
@@ -97,11 +101,14 @@ def reviewer_assignment_create(request, paper_pk):
     if review_round.status != ReviewRound.Status.OPEN:
         messages.warning(
             request,
-            "Reviewers cannot be assigned to a completed review round.",
+            (
+                "Reviewers cannot be assigned "
+                "to a completed review round."
+            ),
         )
 
         return redirect(
-            "admin_paper_detail",
+            "editor_paper_detail",
             pk=paper.pk,
         )
 
@@ -112,19 +119,27 @@ def reviewer_assignment_create(request, paper_pk):
         )
 
         if form.is_valid():
-            assignment = form.save(commit=False)
+            assignment = form.save(
+                commit=False,
+            )
 
             assignment.paper = paper
             assignment.review_round = review_round
             assignment.assigned_by = request.user
+
             assignment.status = (
                 ReviewerAssignment.Status.ASSIGNED
             )
 
             assignment.save()
 
-            if paper.status == Paper.Status.READY_FOR_REVIEW:
-                paper.status = Paper.Status.UNDER_REVIEW
+            if (
+                paper.status
+                == Paper.Status.READY_FOR_REVIEW
+            ):
+                paper.status = (
+                    Paper.Status.UNDER_REVIEW
+                )
 
                 paper.save(
                     update_fields=[
@@ -136,13 +151,14 @@ def reviewer_assignment_create(request, paper_pk):
             messages.success(
                 request,
                 (
-                    f"{assignment.reviewer.username} was assigned "
-                    f"to Review Round {review_round.round_number}."
+                    f"{assignment.reviewer.username} "
+                    f"was assigned to Review Round "
+                    f"{review_round.round_number}."
                 ),
             )
 
             return redirect(
-                "admin_paper_detail",
+                "editor_paper_detail",
                 pk=paper.pk,
             )
 
@@ -204,7 +220,9 @@ def reviewer_assignment_detail(request, pk):
     review_round = assignment.review_round
 
     if request.method == "POST":
-        action = request.POST.get("action")
+        action = request.POST.get(
+            "action",
+        )
 
         if action == "accept":
             if (
@@ -213,7 +231,10 @@ def reviewer_assignment_detail(request, pk):
             ):
                 messages.warning(
                     request,
-                    "You have already responded to this assignment.",
+                    (
+                        "You have already responded "
+                        "to this assignment."
+                    ),
                 )
 
             else:
@@ -221,7 +242,9 @@ def reviewer_assignment_detail(request, pk):
                     ReviewerAssignment.Status.ACCEPTED
                 )
 
-                assignment.responded_at = timezone.now()
+                assignment.responded_at = (
+                    timezone.now()
+                )
 
                 assignment.save(
                     update_fields=[
@@ -232,7 +255,10 @@ def reviewer_assignment_detail(request, pk):
 
                 messages.success(
                     request,
-                    "Review assignment accepted successfully.",
+                    (
+                        "Review assignment accepted "
+                        "successfully."
+                    ),
                 )
 
         elif action == "decline":
@@ -242,7 +268,10 @@ def reviewer_assignment_detail(request, pk):
             ):
                 messages.warning(
                     request,
-                    "You have already responded to this assignment.",
+                    (
+                        "You have already responded "
+                        "to this assignment."
+                    ),
                 )
 
             else:
@@ -250,7 +279,9 @@ def reviewer_assignment_detail(request, pk):
                     ReviewerAssignment.Status.DECLINED
                 )
 
-                assignment.responded_at = timezone.now()
+                assignment.responded_at = (
+                    timezone.now()
+                )
 
                 assignment.save(
                     update_fields=[
@@ -260,7 +291,9 @@ def reviewer_assignment_detail(request, pk):
                 )
 
                 active_assignments = (
-                    review_round.reviewer_assignments.filter(
+                    review_round
+                    .reviewer_assignments
+                    .filter(
                         status__in=[
                             ReviewerAssignment.Status.ASSIGNED,
                             ReviewerAssignment.Status.ACCEPTED,
@@ -269,8 +302,12 @@ def reviewer_assignment_detail(request, pk):
                 )
 
                 completed_assignments = (
-                    review_round.reviewer_assignments.filter(
-                        status=ReviewerAssignment.Status.COMPLETED,
+                    review_round
+                    .reviewer_assignments
+                    .filter(
+                        status=(
+                            ReviewerAssignment.Status.COMPLETED
+                        ),
                     )
                 )
 
@@ -308,7 +345,9 @@ def reviewer_assignment_detail(request, pk):
                             Paper.Status.REVIEW_COMPLETED
                         )
 
-                    review_round.completed_at = timezone.now()
+                    review_round.completed_at = (
+                        timezone.now()
+                    )
 
                     review_round.save(
                         update_fields=[
@@ -345,7 +384,10 @@ def reviewer_assignment_detail(request, pk):
             ):
                 messages.warning(
                     request,
-                    "Only an accepted assignment can be completed.",
+                    (
+                        "Only an accepted assignment "
+                        "can be completed."
+                    ),
                 )
 
             else:
@@ -361,8 +403,8 @@ def reviewer_assignment_detail(request, pk):
                     messages.error(
                         request,
                         (
-                            "Please provide comments explaining "
-                            "the required revision."
+                            "Please provide comments "
+                            "explaining the required revision."
                         ),
                     )
 
@@ -373,25 +415,34 @@ def reviewer_assignment_detail(request, pk):
 
                 if action == "complete_accept":
                     assignment.recommendation = (
-                        ReviewerAssignment.Recommendation.ACCEPT
+                        ReviewerAssignment
+                        .Recommendation
+                        .ACCEPT
                     )
 
                 elif action == "complete_reject":
                     assignment.recommendation = (
-                        ReviewerAssignment.Recommendation.REJECT
+                        ReviewerAssignment
+                        .Recommendation
+                        .REJECT
                     )
 
                 else:
                     assignment.recommendation = (
-                        ReviewerAssignment.Recommendation.REVISION
+                        ReviewerAssignment
+                        .Recommendation
+                        .REVISION
                     )
 
                 assignment.comments = comments
+
                 assignment.status = (
                     ReviewerAssignment.Status.COMPLETED
                 )
 
-                assignment.completed_at = timezone.now()
+                assignment.completed_at = (
+                    timezone.now()
+                )
 
                 assignment.save(
                     update_fields=[
@@ -403,7 +454,9 @@ def reviewer_assignment_detail(request, pk):
                 )
 
                 remaining_assignments = (
-                    review_round.reviewer_assignments.filter(
+                    review_round
+                    .reviewer_assignments
+                    .filter(
                         status__in=[
                             ReviewerAssignment.Status.ASSIGNED,
                             ReviewerAssignment.Status.ACCEPTED,
@@ -451,7 +504,9 @@ def reviewer_assignment_detail(request, pk):
                             Paper.Status.REVIEW_COMPLETED
                         )
 
-                    review_round.completed_at = timezone.now()
+                    review_round.completed_at = (
+                        timezone.now()
+                    )
 
                     review_round.save(
                         update_fields=[

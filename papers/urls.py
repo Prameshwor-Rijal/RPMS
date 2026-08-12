@@ -4,7 +4,11 @@ from . import views
 
 
 urlpatterns = [
-    path("submit/", views.paper_submit, name="paper_submit"),
+    path(
+        "submit/",
+        views.paper_submit,
+        name="paper_submit",
+    ),
 
     path(
         "my-submissions/",
@@ -14,14 +18,14 @@ urlpatterns = [
 
     path(
         "manage/",
-        views.admin_paper_list,
-        name="admin_paper_list",
+        views.editor_paper_list,
+        name="editor_paper_list",
     ),
 
     path(
         "manage/<int:pk>/screening/",
-        views.paper_initial_screening,
-        name="paper_initial_screening",
+        views.editor_paper_screening,
+        name="editor_paper_screening",
     ),
 
     path(
@@ -50,8 +54,8 @@ urlpatterns = [
 
     path(
         "manage/<int:pk>/",
-        views.admin_paper_detail,
-        name="admin_paper_detail",
+        views.editor_paper_detail,
+        name="editor_paper_detail",
     ),
 
     path(
@@ -95,7 +99,7 @@ urlpatterns = [
         views.paper_revision_upload,
         name="paper_revision_upload",
     ),
-    
+
     path(
         "<int:pk>/",
         views.paper_detail,

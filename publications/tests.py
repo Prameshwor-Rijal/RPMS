@@ -15,10 +15,30 @@ class PublicationManagementTests(TestCase):
     def setUp(self):
         self.today = timezone.localdate()
 
-        self.admin_user = User.objects.create_user(
-            username="publicationadmin",
+        self.owner_user = User.objects.create_user(
+            username="publicationowner",
             password="StrongPass123!",
-            role=User.Role.ADMIN,
+            role=User.Role.JOURNAL_OWNER,
+        )
+
+        self.second_owner = User.objects.create_user(
+            username="secondowner",
+            password="StrongPass123!",
+            role=User.Role.JOURNAL_OWNER,
+        )
+
+        self.editor_user = User.objects.create_user(
+            username="publicationeditor",
+            password="StrongPass123!",
+            role=User.Role.EDITOR,
+            created_by=self.owner_user,
+        )
+
+        self.second_editor = User.objects.create_user(
+            username="secondeditor",
+            password="StrongPass123!",
+            role=User.Role.EDITOR,
+            created_by=self.second_owner,
         )
 
         self.author_user = User.objects.create_user(
@@ -31,26 +51,92 @@ class PublicationManagementTests(TestCase):
             username="publicationreviewer",
             password="StrongPass123!",
             role=User.Role.REVIEWER,
+            created_by=self.owner_user,
         )
 
         self.publication = Publication.objects.create(
             name="Test Computing Conference",
-            publication_type=Publication.PublicationType.CONFERENCE,
-            description="A test research conference.",
-            submission_open_date=self.today - timedelta(days=5),
-            submission_deadline=self.today + timedelta(days=10),
-            review_deadline=self.today + timedelta(days=20),
-            event_date=self.today + timedelta(days=30),
+            publication_type=(
+                Publication.PublicationType.CONFERENCE
+            ),
+            description=(
+                "A test research conference."
+            ),
+            organizer="RPMS Research Group",
+            venue="Kathmandu",
+            submission_open_date=(
+                self.today - timedelta(days=5)
+            ),
+            submission_deadline=(
+                self.today + timedelta(days=10)
+            ),
+            review_deadline=(
+                self.today + timedelta(days=20)
+            ),
+            event_date=(
+                self.today + timedelta(days=30)
+            ),
             location="Kathmandu",
-            status=Publication.Status.OPEN,
-            created_by=self.admin_user,
+            lifecycle_status=(
+                Publication.LifecycleStatus.ACTIVE
+            ),
+            created_by=self.owner_user,
+            owner=self.owner_user,
         )
 
-    def publication_data(self, name="New Research Journal"):
+        self.publication.editors.add(
+            self.editor_user,
+        )
+
+        self.second_publication = Publication.objects.create(
+            name="Second Owner Conference",
+            publication_type=(
+                Publication.PublicationType.CONFERENCE
+            ),
+            description=(
+                "Publication belonging to another owner."
+            ),
+            organizer="Second Research Group",
+            venue="Pokhara",
+            submission_open_date=(
+                self.today - timedelta(days=3)
+            ),
+            submission_deadline=(
+                self.today + timedelta(days=12)
+            ),
+            review_deadline=(
+                self.today + timedelta(days=22)
+            ),
+            event_date=(
+                self.today + timedelta(days=32)
+            ),
+            location="Pokhara",
+            lifecycle_status=(
+                Publication.LifecycleStatus.ACTIVE
+            ),
+            created_by=self.second_owner,
+            owner=self.second_owner,
+        )
+
+        self.second_publication.editors.add(
+            self.second_editor,
+        )
+
+    def publication_data(
+        self,
+        name="New Research Conference",
+    ):
         return {
             "name": name,
-            "publication_type": Publication.PublicationType.JOURNAL,
-            "description": "A journal created during an automated test.",
+            "publication_type": (
+                Publication.PublicationType.CONFERENCE
+            ),
+            "description": (
+                "A conference created during "
+                "an automated test."
+            ),
+            "organizer": "RPMS Test Organization",
+            "venue": "Kathmandu Convention Center",
             "submission_open_date": (
                 self.today + timedelta(days=1)
             ).isoformat(),
@@ -63,58 +149,181 @@ class PublicationManagementTests(TestCase):
             "event_date": (
                 self.today + timedelta(days=30)
             ).isoformat(),
-            "location": "Online",
-            "status": Publication.Status.DRAFT,
+            "location": "Kathmandu",
+            "lifecycle_status": (
+                Publication.LifecycleStatus.DRAFT
+            ),
+            "editors": [
+                self.editor_user.pk,
+            ],
         }
 
-    def test_admin_can_view_publication_list(self):
-        self.client.force_login(self.admin_user)
+    def test_owner_can_view_own_publication_list(self):
+        self.client.force_login(
+            self.owner_user,
+        )
 
-        response = self.client.get(reverse("publication_list"))
+        response = self.client.get(
+            reverse("publication_list")
+        )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
         self.assertTemplateUsed(
             response,
             "publications/publication_list.html",
         )
-        self.assertContains(response, self.publication.name)
 
-    def test_author_cannot_view_admin_publication_list(self):
-        self.client.force_login(self.author_user)
+        self.assertContains(
+            response,
+            self.publication.name,
+        )
 
-        response = self.client.get(reverse("publication_list"))
+        self.assertNotContains(
+            response,
+            self.second_publication.name,
+        )
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("dashboard_redirect"))
+    def test_author_cannot_view_publication_management_list(
+        self,
+    ):
+        self.client.force_login(
+            self.author_user,
+        )
 
-    def test_admin_can_create_publication(self):
-        self.client.force_login(self.admin_user)
+        response = self.client.get(
+            reverse("publication_list")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            302,
+        )
+
+        self.assertEqual(
+            response.url,
+            reverse("dashboard_redirect"),
+        )
+
+    def test_reviewer_cannot_view_publication_management_list(
+        self,
+    ):
+        self.client.force_login(
+            self.reviewer_user,
+        )
+
+        response = self.client.get(
+            reverse("publication_list")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            302,
+        )
+
+        self.assertEqual(
+            response.url,
+            reverse("dashboard_redirect"),
+        )
+
+    def test_owner_can_create_publication(self):
+        self.client.force_login(
+            self.owner_user,
+        )
 
         response = self.client.post(
             reverse("publication_create"),
             self.publication_data(),
         )
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("publication_list"))
-
-        publication = Publication.objects.get(
-            name="New Research Journal"
+        self.assertEqual(
+            response.status_code,
+            302,
         )
 
-        self.assertEqual(publication.created_by, self.admin_user)
+        self.assertEqual(
+            response.url,
+            reverse("publication_list"),
+        )
+
+        publication = Publication.objects.get(
+            name="New Research Conference",
+        )
+
+        self.assertEqual(
+            publication.created_by,
+            self.owner_user,
+        )
+
+        self.assertEqual(
+            publication.owner,
+            self.owner_user,
+        )
+
         self.assertEqual(
             publication.publication_type,
-            Publication.PublicationType.JOURNAL,
+            Publication.PublicationType.CONFERENCE,
+        )
+
+        self.assertEqual(
+            publication.lifecycle_status,
+            Publication.LifecycleStatus.DRAFT,
+        )
+
+        self.assertTrue(
+            publication.editors.filter(
+                pk=self.editor_user.pk,
+            ).exists()
+        )
+
+    def test_owner_cannot_assign_another_owners_editor(
+        self,
+    ):
+        self.client.force_login(
+            self.owner_user,
+        )
+
+        response = self.client.get(
+            reverse("publication_create")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        form = response.context["form"]
+
+        editor_queryset = (
+            form.fields["editors"].queryset
+        )
+
+        self.assertIn(
+            self.editor_user,
+            editor_queryset,
+        )
+
+        self.assertNotIn(
+            self.second_editor,
+            editor_queryset,
         )
 
     def test_invalid_dates_do_not_create_publication(self):
-        self.client.force_login(self.admin_user)
+        self.client.force_login(
+            self.owner_user,
+        )
 
-        data = self.publication_data(name="Invalid Publication")
+        data = self.publication_data(
+            name="Invalid Publication",
+        )
+
         data["submission_open_date"] = (
             self.today + timedelta(days=10)
         ).isoformat()
+
         data["submission_deadline"] = (
             self.today + timedelta(days=5)
         ).isoformat()
@@ -124,81 +333,252 @@ class PublicationManagementTests(TestCase):
             data,
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(
-            Publication.objects.filter(
-                name="Invalid Publication"
-            ).exists()
-        )
-        self.assertContains(
-            response,
-            "Submission deadline must be after the opening date.",
+        self.assertEqual(
+            response.status_code,
+            200,
         )
 
-    def test_admin_can_view_publication_detail(self):
-        self.client.force_login(self.admin_user)
+        self.assertFalse(
+            Publication.objects.filter(
+                name="Invalid Publication",
+            ).exists()
+        )
+
+        self.assertContains(
+            response,
+            (
+                "Submission deadline must be "
+                "after the opening date."
+            ),
+        )
+
+    def test_owner_can_view_own_publication_detail(self):
+        self.client.force_login(
+            self.owner_user,
+        )
 
         response = self.client.get(
             reverse(
                 "publication_detail",
-                kwargs={"pk": self.publication.pk},
+                kwargs={
+                    "pk": self.publication.pk,
+                },
             )
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
         self.assertTemplateUsed(
             response,
             "publications/publication_detail.html",
         )
-        self.assertContains(response, self.publication.name)
 
-    def test_admin_can_update_publication(self):
-        self.client.force_login(self.admin_user)
+        self.assertContains(
+            response,
+            self.publication.name,
+        )
+
+    def test_owner_cannot_view_another_owners_publication(
+        self,
+    ):
+        self.client.force_login(
+            self.owner_user,
+        )
+
+        response = self.client.get(
+            reverse(
+                "publication_detail",
+                kwargs={
+                    "pk": self.second_publication.pk,
+                },
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            404,
+        )
+
+    def test_owner_can_update_own_publication(self):
+        self.client.force_login(
+            self.owner_user,
+        )
 
         updated_data = self.publication_data(
-            name="Updated Research Journal"
+            name="Updated Computing Conference",
+        )
+
+        updated_data["lifecycle_status"] = (
+            Publication.LifecycleStatus.ACTIVE
         )
 
         response = self.client.post(
             reverse(
                 "publication_update",
-                kwargs={"pk": self.publication.pk},
+                kwargs={
+                    "pk": self.publication.pk,
+                },
             ),
             updated_data,
         )
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.status_code,
+            302,
+        )
 
         self.publication.refresh_from_db()
 
         self.assertEqual(
             self.publication.name,
-            "Updated Research Journal",
+            "Updated Computing Conference",
         )
+
+        self.assertEqual(
+            self.publication.lifecycle_status,
+            Publication.LifecycleStatus.ACTIVE,
+        )
+
+        self.assertEqual(
+            self.publication.owner,
+            self.owner_user,
+        )
+
         self.assertEqual(
             response.url,
             reverse(
                 "publication_detail",
-                kwargs={"pk": self.publication.pk},
+                kwargs={
+                    "pk": self.publication.pk,
+                },
             ),
         )
 
-    def test_admin_can_delete_publication(self):
-        self.client.force_login(self.admin_user)
+    def test_owner_cannot_update_another_owners_publication(
+        self,
+    ):
+        self.client.force_login(
+            self.owner_user,
+        )
 
-        publication_id = self.publication.pk
+        response = self.client.post(
+            reverse(
+                "publication_update",
+                kwargs={
+                    "pk": self.second_publication.pk,
+                },
+            ),
+            self.publication_data(
+                name="Unauthorized Update",
+            ),
+        )
+
+        self.assertEqual(
+            response.status_code,
+            404,
+        )
+
+        self.second_publication.refresh_from_db()
+
+        self.assertEqual(
+            self.second_publication.name,
+            "Second Owner Conference",
+        )
+
+    def test_owner_can_delete_own_publication(self):
+        self.client.force_login(
+            self.owner_user,
+        )
+
+        publication = Publication.objects.create(
+            name="Delete Test Conference",
+            publication_type=(
+                Publication.PublicationType.CONFERENCE
+            ),
+            description=(
+                "Publication created for delete testing."
+            ),
+            organizer="RPMS Test Organization",
+            venue="Kathmandu",
+            submission_open_date=(
+                self.today - timedelta(days=2)
+            ),
+            submission_deadline=(
+                self.today + timedelta(days=10)
+            ),
+            review_deadline=(
+                self.today + timedelta(days=20)
+            ),
+            event_date=(
+                self.today + timedelta(days=30)
+            ),
+            location="Kathmandu",
+            lifecycle_status=(
+                Publication.LifecycleStatus.DRAFT
+            ),
+            created_by=self.owner_user,
+            owner=self.owner_user,
+        )
+
+        publication_id = publication.pk
 
         response = self.client.post(
             reverse(
                 "publication_delete",
-                kwargs={"pk": publication_id},
+                kwargs={
+                    "pk": publication_id,
+                },
             )
         )
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("publication_list"))
+        self.assertEqual(
+            response.status_code,
+            302,
+        )
+
+        self.assertEqual(
+            response.url,
+            reverse("publication_list"),
+        )
+
         self.assertFalse(
-            Publication.objects.filter(pk=publication_id).exists()
+            Publication.objects.filter(
+                pk=publication_id,
+            ).exists()
+        )
+
+    def test_owner_cannot_delete_another_owners_publication(
+        self,
+    ):
+        self.client.force_login(
+            self.owner_user,
+        )
+
+        publication_id = (
+            self.second_publication.pk
+        )
+
+        response = self.client.post(
+            reverse(
+                "publication_delete",
+                kwargs={
+                    "pk": publication_id,
+                },
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            404,
+        )
+
+        self.assertTrue(
+            Publication.objects.filter(
+                pk=publication_id,
+            ).exists()
         )
 
 
@@ -206,10 +586,10 @@ class AvailablePublicationTests(TestCase):
     def setUp(self):
         self.today = timezone.localdate()
 
-        self.admin_user = User.objects.create_user(
-            username="availableadmin",
+        self.owner_user = User.objects.create_user(
+            username="availableowner",
             password="StrongPass123!",
-            role=User.Role.ADMIN,
+            role=User.Role.JOURNAL_OWNER,
         )
 
         self.author_user = User.objects.create_user(
@@ -222,94 +602,216 @@ class AvailablePublicationTests(TestCase):
             username="availablereviewer",
             password="StrongPass123!",
             role=User.Role.REVIEWER,
+            created_by=self.owner_user,
         )
 
-        self.available_publication = self.create_publication(
-            name="Available Conference",
-            status=Publication.Status.OPEN,
-            open_date=self.today - timedelta(days=2),
-            deadline=self.today + timedelta(days=10),
+        self.available_publication = (
+            self.create_publication(
+                name="Available Conference",
+                lifecycle_status=(
+                    Publication.LifecycleStatus.ACTIVE
+                ),
+                open_date=(
+                    self.today
+                    - timedelta(days=2)
+                ),
+                deadline=(
+                    self.today
+                    + timedelta(days=10)
+                ),
+            )
         )
 
-        self.closed_publication = self.create_publication(
-            name="Closed Conference",
-            status=Publication.Status.CLOSED,
-            open_date=self.today - timedelta(days=2),
-            deadline=self.today + timedelta(days=10),
+        self.draft_publication = (
+            self.create_publication(
+                name="Draft Conference",
+                lifecycle_status=(
+                    Publication.LifecycleStatus.DRAFT
+                ),
+                open_date=(
+                    self.today
+                    - timedelta(days=2)
+                ),
+                deadline=(
+                    self.today
+                    + timedelta(days=10)
+                ),
+            )
         )
 
-        self.future_publication = self.create_publication(
-            name="Future Conference",
-            status=Publication.Status.OPEN,
-            open_date=self.today + timedelta(days=5),
-            deadline=self.today + timedelta(days=15),
+        self.archived_publication = (
+            self.create_publication(
+                name="Archived Conference",
+                lifecycle_status=(
+                    Publication.LifecycleStatus.ARCHIVED
+                ),
+                open_date=(
+                    self.today
+                    - timedelta(days=2)
+                ),
+                deadline=(
+                    self.today
+                    + timedelta(days=10)
+                ),
+            )
         )
 
-        self.expired_publication = self.create_publication(
-            name="Expired Conference",
-            status=Publication.Status.OPEN,
-            open_date=self.today - timedelta(days=20),
-            deadline=self.today - timedelta(days=1),
+        self.future_publication = (
+            self.create_publication(
+                name="Future Conference",
+                lifecycle_status=(
+                    Publication.LifecycleStatus.ACTIVE
+                ),
+                open_date=(
+                    self.today
+                    + timedelta(days=5)
+                ),
+                deadline=(
+                    self.today
+                    + timedelta(days=15)
+                ),
+            )
+        )
+
+        self.expired_publication = (
+            self.create_publication(
+                name="Expired Conference",
+                lifecycle_status=(
+                    Publication.LifecycleStatus.ACTIVE
+                ),
+                open_date=(
+                    self.today
+                    - timedelta(days=20)
+                ),
+                deadline=(
+                    self.today
+                    - timedelta(days=1)
+                ),
+            )
         )
 
     def create_publication(
         self,
         name,
-        status,
+        lifecycle_status,
         open_date,
         deadline,
     ):
         return Publication.objects.create(
             name=name,
-            publication_type=Publication.PublicationType.CONFERENCE,
-            description="Publication filtering test.",
+            publication_type=(
+                Publication.PublicationType.CONFERENCE
+            ),
+            description=(
+                "Publication availability test."
+            ),
+            organizer="RPMS Test Organization",
+            venue="Online",
             submission_open_date=open_date,
             submission_deadline=deadline,
-            review_deadline=deadline + timedelta(days=10),
-            event_date=deadline + timedelta(days=20),
+            review_deadline=(
+                deadline + timedelta(days=10)
+            ),
+            event_date=(
+                deadline + timedelta(days=20)
+            ),
             location="Online",
-            status=status,
-            created_by=self.admin_user,
+            lifecycle_status=lifecycle_status,
+            created_by=self.owner_user,
+            owner=self.owner_user,
         )
 
-    def test_author_sees_only_currently_available_publications(self):
-        self.client.force_login(self.author_user)
+    def test_author_sees_only_currently_available_publications(
+        self,
+    ):
+        self.client.force_login(
+            self.author_user,
+        )
 
         response = self.client.get(
             reverse("available_publications")
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(
-            response,
-            "publications/available_publications.html",
+        self.assertEqual(
+            response.status_code,
+            200,
         )
 
-        publications = response.context["publications"]
+        self.assertTemplateUsed(
+            response,
+            (
+                "publications/"
+                "available_publications.html"
+            ),
+        )
+
+        publications = response.context[
+            "publications"
+        ]
 
         self.assertIn(
             self.available_publication,
             publications,
         )
+
         self.assertNotIn(
-            self.closed_publication,
+            self.draft_publication,
             publications,
         )
+
+        self.assertNotIn(
+            self.archived_publication,
+            publications,
+        )
+
         self.assertNotIn(
             self.future_publication,
             publications,
         )
+
         self.assertNotIn(
             self.expired_publication,
             publications,
         )
 
-    def test_reviewer_cannot_view_available_publications(self):
-        self.client.force_login(self.reviewer_user)
+    def test_reviewer_cannot_view_available_publications(
+        self,
+    ):
+        self.client.force_login(
+            self.reviewer_user,
+        )
 
         response = self.client.get(
             reverse("available_publications")
         )
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("dashboard_redirect"))
+        self.assertEqual(
+            response.status_code,
+            302,
+        )
+
+        self.assertEqual(
+            response.url,
+            reverse("dashboard_redirect"),
+        )
+
+    def test_owner_cannot_view_author_available_publications(
+        self,
+    ):
+        self.client.force_login(
+            self.owner_user,
+        )
+
+        response = self.client.get(
+            reverse("available_publications")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            302,
+        )
+
+        self.assertEqual(
+            response.url,
+            reverse("dashboard_redirect"),
+        )

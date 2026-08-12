@@ -8,9 +8,6 @@ class Publication(models.Model):
         CONFERENCE = "CONFERENCE", "Conference"
         JOURNAL = "JOURNAL", "Journal"
 
-    # Temporary legacy status.
-    # We will remove this after the rest of the project
-    # has been migrated to the new workflow.
 
     class LifecycleStatus(models.TextChoices):
         DRAFT = "DRAFT", "Draft"
@@ -76,8 +73,6 @@ class Publication(models.Model):
         max_length=255,
         blank=True,
     )
-
-    # Temporary legacy field.
 
     lifecycle_status = models.CharField(
         max_length=20,

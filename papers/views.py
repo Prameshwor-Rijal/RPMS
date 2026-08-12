@@ -1,10 +1,10 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
-from django.http import FileResponse
 
 from accounts.models import User
 from dashboard.decorators import role_required
@@ -24,6 +24,7 @@ from .models import (
     PaperVersion,
     Production,
 )
+
 
 @login_required
 def paper_version_file(request, version_id):
@@ -45,28 +46,38 @@ def paper_version_file(request, version_id):
         has_access = True
 
     elif user.role == User.Role.AUTHOR:
-        has_access = paper.corresponding_author_id == user.id
+        has_access = (
+            paper.corresponding_author_id
+            == user.id
+        )
 
     elif user.role == User.Role.EDITOR:
-        has_access = paper.publication.editors.filter(
-            pk=user.pk,
-        ).exists()
+        has_access = (
+            paper.publication.editors.filter(
+                pk=user.pk,
+            ).exists()
+        )
 
     elif user.role == User.Role.JOURNAL_OWNER:
-        has_access = paper.publication.owner_id == user.id
+        has_access = (
+            paper.publication.owner_id
+            == user.id
+        )
 
     elif user.role == User.Role.REVIEWER:
         from reviews.models import ReviewerAssignment
 
-        has_access = ReviewerAssignment.objects.filter(
-            reviewer=user,
-            review_round__paper_version=version,
-        ).exists()
+        has_access = (
+            ReviewerAssignment.objects.filter(
+                reviewer=user,
+                review_round__paper_version=version,
+            ).exists()
+        )
 
     if not has_access:
-        from django.http import Http404
-
-        raise Http404("Paper version not found.")
+        raise Http404(
+            "Paper version not found."
+        )
 
     version.file.open("rb")
 
@@ -74,6 +85,7 @@ def paper_version_file(request, version_id):
         version.file,
         content_type="application/pdf",
     )
+
 
 @role_required([User.Role.AUTHOR])
 def paper_submit(request):
@@ -85,32 +97,54 @@ def paper_submit(request):
 
         if form.is_valid():
             with transaction.atomic():
-                paper = form.save(commit=False)
-                paper.corresponding_author = request.user
-                paper.status = Paper.Status.SUBMITTED
-                paper.submitted_at = timezone.now()
+                paper = form.save(
+                    commit=False,
+                )
+
+                paper.corresponding_author = (
+                    request.user
+                )
+
+                paper.status = (
+                    Paper.Status.SUBMITTED
+                )
+
+                paper.submitted_at = (
+                    timezone.now()
+                )
+
                 paper.save()
 
                 PaperVersion.objects.create(
                     paper=paper,
                     version_number=1,
-                    file=form.cleaned_data["paper_file"],
+                    file=form.cleaned_data[
+                        "paper_file"
+                    ],
                     uploaded_by=request.user,
                 )
 
             messages.success(
                 request,
-                "Research paper submitted successfully.",
+                (
+                    "Research paper submitted "
+                    "successfully."
+                ),
             )
 
-            return redirect("author_dashboard")
+            return redirect(
+                "author_dashboard",
+            )
+
     else:
         form = PaperSubmissionForm()
 
     return render(
         request,
         "papers/paper_submit.html",
-        {"form": form},
+        {
+            "form": form,
+        },
     )
 
 
@@ -120,14 +154,20 @@ def my_submissions(request):
         Paper.objects.filter(
             corresponding_author=request.user,
         )
-        .select_related("publication")
-        .order_by("-created_at")
+        .select_related(
+            "publication",
+        )
+        .order_by(
+            "-created_at",
+        )
     )
 
     return render(
         request,
         "papers/my_submissions.html",
-        {"papers": papers},
+        {
+            "papers": papers,
+        },
     )
 
 
@@ -141,7 +181,10 @@ def paper_detail(request, pk):
         ).prefetch_related(
             "versions",
             "review_rounds__paper_version",
-            "review_rounds__reviewer_assignments",
+            (
+                "review_rounds__"
+                "reviewer_assignments"
+            ),
         ),
         pk=pk,
         corresponding_author=request.user,
@@ -154,6 +197,7 @@ def paper_detail(request, pk):
             "paper": paper,
         },
     )
+
 
 @role_required([User.Role.AUTHOR])
 def paper_revision_upload(request, pk):
@@ -168,10 +212,17 @@ def paper_revision_upload(request, pk):
         corresponding_author=request.user,
     )
 
-    if paper.status != Paper.Status.REVISION_REQUIRED:
+    if (
+        paper.status
+        != Paper.Status.REVISION_REQUIRED
+    ):
         messages.warning(
             request,
-            "A revised version can only be uploaded when revision is required.",
+            (
+                "A revised version can only "
+                "be uploaded when revision "
+                "is required."
+            ),
         )
 
         return redirect(
@@ -188,27 +239,37 @@ def paper_revision_upload(request, pk):
         if form.is_valid():
             with transaction.atomic():
                 latest_version = (
-                    paper.versions.order_by(
-                        "-version_number"
-                    ).first()
+                    paper.versions
+                    .order_by(
+                        "-version_number",
+                    )
+                    .first()
                 )
 
                 next_version_number = (
-                    latest_version.version_number + 1
+                    latest_version.version_number
+                    + 1
                     if latest_version
                     else 1
                 )
 
-                new_version = PaperVersion.objects.create(
-                    paper=paper,
-                    version_number=next_version_number,
-                    file=form.cleaned_data["paper_file"],
-                    uploaded_by=request.user,
+                new_version = (
+                    PaperVersion.objects.create(
+                        paper=paper,
+                        version_number=(
+                            next_version_number
+                        ),
+                        file=form.cleaned_data[
+                            "paper_file"
+                        ],
+                        uploaded_by=request.user,
+                    )
                 )
 
                 latest_round_number = (
-                    paper.review_rounds.order_by(
-                        "-round_number"
+                    paper.review_rounds
+                    .order_by(
+                        "-round_number",
                     )
                     .values_list(
                         "round_number",
@@ -226,11 +287,17 @@ def paper_revision_upload(request, pk):
                 ReviewRound.objects.create(
                     paper=paper,
                     paper_version=new_version,
-                    round_number=next_round_number,
-                    status=ReviewRound.Status.OPEN,
+                    round_number=(
+                        next_round_number
+                    ),
+                    status=(
+                        ReviewRound.Status.OPEN
+                    ),
                 )
 
-                paper.status = Paper.Status.READY_FOR_REVIEW
+                paper.status = (
+                    Paper.Status.READY_FOR_REVIEW
+                )
 
                 paper.save(
                     update_fields=[
@@ -242,8 +309,13 @@ def paper_revision_upload(request, pk):
             messages.success(
                 request,
                 (
-                    f"Version {next_version_number} uploaded successfully. "
-                    f"Review Round {next_round_number} is ready for Reviewer assignment."
+                    f"Version "
+                    f"{next_version_number} "
+                    "uploaded successfully. "
+                    f"Review Round "
+                    f"{next_round_number} "
+                    "is ready for Reviewer "
+                    "assignment."
                 ),
             )
 
@@ -263,6 +335,7 @@ def paper_revision_upload(request, pk):
             "form": form,
         },
     )
+
 
 @role_required([User.Role.AUTHOR])
 def copyediting_submission(request, pk):
@@ -284,7 +357,11 @@ def copyediting_submission(request, pk):
     ):
         messages.warning(
             request,
-            "A corrected copy can only be uploaded when copyediting corrections are required.",
+            (
+                "A corrected copy can only "
+                "be uploaded when copyediting "
+                "corrections are required."
+            ),
         )
 
         return redirect(
@@ -301,46 +378,72 @@ def copyediting_submission(request, pk):
         if form.is_valid():
             with transaction.atomic():
                 latest_version = (
-                    paper.versions.order_by(
-                        "-version_number"
-                    ).first()
+                    paper.versions
+                    .order_by(
+                        "-version_number",
+                    )
+                    .first()
                 )
 
                 next_version_number = (
-                    latest_version.version_number + 1
+                    latest_version.version_number
+                    + 1
                     if latest_version
                     else 1
                 )
 
-                corrected_version = PaperVersion.objects.create(
-                    paper=paper,
-                    version_number=next_version_number,
-                    file=form.cleaned_data["paper_file"],
-                    uploaded_by=request.user,
+                corrected_version = (
+                    PaperVersion.objects.create(
+                        paper=paper,
+                        version_number=(
+                            next_version_number
+                        ),
+                        file=form.cleaned_data[
+                            "paper_file"
+                        ],
+                        uploaded_by=request.user,
+                    )
                 )
 
-                copyediting = paper.copyediting
-
-                copyediting.corrected_version = corrected_version
-                copyediting.author_note = form.cleaned_data.get(
-                    "author_note",
-                    "",
+                copyediting = (
+                    paper.copyediting
                 )
+
+                copyediting.corrected_version = (
+                    corrected_version
+                )
+
+                copyediting.author_note = (
+                    form.cleaned_data.get(
+                        "author_note",
+                        "",
+                    )
+                )
+
                 copyediting.status = (
-                    Copyediting.Status.CORRECTION_SUBMITTED
+                    Copyediting.Status
+                    .CORRECTION_SUBMITTED
                 )
-                copyediting.correction_submitted_at = timezone.now()
+
+                copyediting.correction_submitted_at = (
+                    timezone.now()
+                )
 
                 copyediting.save(
                     update_fields=[
                         "corrected_version",
                         "author_note",
                         "status",
-                        "correction_submitted_at",
+                        (
+                            "correction_"
+                            "submitted_at"
+                        ),
                     ]
                 )
 
-                paper.status = Paper.Status.COPYEDITING
+                paper.status = (
+                    Paper.Status.COPYEDITING
+                )
 
                 paper.save(
                     update_fields=[
@@ -352,8 +455,10 @@ def copyediting_submission(request, pk):
             messages.success(
                 request,
                 (
-                    f"Corrected Version {next_version_number} "
-                    "submitted successfully for copyediting review."
+                    f"Corrected Version "
+                    f"{next_version_number} "
+                    "submitted successfully "
+                    "for copyediting review."
                 ),
             )
 
@@ -375,6 +480,7 @@ def copyediting_submission(request, pk):
         },
     )
 
+
 @role_required([User.Role.EDITOR])
 @require_POST
 def start_copyediting(request, pk):
@@ -385,35 +491,50 @@ def start_copyediting(request, pk):
         pk=pk,
     )
 
-    if paper.status != Paper.Status.ACCEPTED:
+    if (
+        paper.status
+        != Paper.Status.ACCEPTED
+    ):
         messages.error(
             request,
-            "Copyediting can only be started for an accepted paper.",
+            (
+                "Copyediting can only be "
+                "started for an accepted paper."
+            ),
         )
+
         return redirect(
-            "admin_paper_detail",
+            "editor_paper_detail",
             pk=paper.pk,
         )
 
     with transaction.atomic():
-        copyediting, created = Copyediting.objects.get_or_create(
-            paper=paper,
-            defaults={
-                "started_by": request.user,
-            },
+        copyediting, created = (
+            Copyediting.objects.get_or_create(
+                paper=paper,
+                defaults={
+                    "started_by": request.user,
+                },
+            )
         )
 
         if not created:
             messages.info(
                 request,
-                "Copyediting has already been started for this paper.",
+                (
+                    "Copyediting has already "
+                    "been started for this paper."
+                ),
             )
+
             return redirect(
-                "admin_paper_detail",
+                "editor_paper_detail",
                 pk=paper.pk,
             )
 
-        paper.status = Paper.Status.COPYEDITING
+        paper.status = (
+            Paper.Status.COPYEDITING
+        )
 
         paper.save(
             update_fields=[
@@ -428,54 +549,83 @@ def start_copyediting(request, pk):
     )
 
     return redirect(
-        "admin_paper_detail",
+        "editor_paper_detail",
         pk=paper.pk,
     )
 
+
 @role_required([User.Role.EDITOR])
-def request_copyediting_correction(request, pk):
+def request_copyediting_correction(
+    request,
+    pk,
+):
     paper = get_object_or_404(
         Paper.objects.filter(
             publication__editors=request.user,
         )
-        .select_related("copyediting")
+        .select_related(
+            "copyediting",
+        )
         .distinct(),
         pk=pk,
     )
 
-    if paper.status != Paper.Status.COPYEDITING:
+    if (
+        paper.status
+        != Paper.Status.COPYEDITING
+    ):
         messages.warning(
             request,
-            "Corrections can only be requested while copyediting is in progress.",
+            (
+                "Corrections can only be "
+                "requested while copyediting "
+                "is in progress."
+            ),
         )
+
         return redirect(
-            "admin_paper_detail",
+            "editor_paper_detail",
             pk=paper.pk,
         )
 
     copyediting = paper.copyediting
 
     if request.method == "POST":
-        form = CopyeditingCorrectionForm(request.POST)
+        form = CopyeditingCorrectionForm(
+            request.POST,
+        )
 
         if form.is_valid():
             with transaction.atomic():
-                copyediting.status = Copyediting.Status.CORRECTION_REQUIRED
-                copyediting.correction_note = form.cleaned_data[
-                    "correction_note"
-                ]
-                copyediting.correction_requested_at = timezone.now()
+                copyediting.status = (
+                    Copyediting.Status
+                    .CORRECTION_REQUIRED
+                )
+
+                copyediting.correction_note = (
+                    form.cleaned_data[
+                        "correction_note"
+                    ]
+                )
+
+                copyediting.correction_requested_at = (
+                    timezone.now()
+                )
 
                 copyediting.save(
                     update_fields=[
                         "status",
                         "correction_note",
-                        "correction_requested_at",
+                        (
+                            "correction_"
+                            "requested_at"
+                        ),
                     ]
                 )
 
                 paper.status = (
-                    Paper.Status.COPYEDITING_CORRECTION_REQUIRED
+                    Paper.Status
+                    .COPYEDITING_CORRECTION_REQUIRED
                 )
 
                 paper.save(
@@ -487,19 +637,27 @@ def request_copyediting_correction(request, pk):
 
             messages.success(
                 request,
-                "Copyediting corrections have been requested from the Author.",
+                (
+                    "Copyediting corrections "
+                    "have been requested from "
+                    "the Author."
+                ),
             )
 
             return redirect(
-                "admin_paper_detail",
+                "editor_paper_detail",
                 pk=paper.pk,
             )
+
     else:
         form = CopyeditingCorrectionForm()
 
     return render(
         request,
-        "papers/copyediting_correction_request.html",
+        (
+            "papers/"
+            "copyediting_correction_request.html"
+        ),
         {
             "paper": paper,
             "copyediting": copyediting,
@@ -507,8 +665,12 @@ def request_copyediting_correction(request, pk):
         },
     )
 
+
 @role_required([User.Role.JOURNAL_OWNER])
-def journal_owner_paper_detail(request, pk):
+def journal_owner_paper_detail(
+    request,
+    pk,
+):
     paper = get_object_or_404(
         Paper.objects.filter(
             publication__owner=request.user,
@@ -524,18 +686,25 @@ def journal_owner_paper_detail(request, pk):
         .prefetch_related(
             "versions",
             "review_rounds__paper_version",
-            "review_rounds__reviewer_assignments__reviewer",
+            (
+                "review_rounds__"
+                "reviewer_assignments__reviewer"
+            ),
         ),
         pk=pk,
     )
 
     return render(
         request,
-        "papers/journal_owner_paper_detail.html",
+        (
+            "papers/"
+            "journal_owner_paper_detail.html"
+        ),
         {
             "paper": paper,
         },
     )
+
 
 @role_required([User.Role.JOURNAL_OWNER])
 @require_POST
@@ -547,10 +716,17 @@ def start_production(request, pk):
         pk=pk,
     )
 
-    if paper.status != Paper.Status.READY_FOR_PRODUCTION:
+    if (
+        paper.status
+        != Paper.Status.READY_FOR_PRODUCTION
+    ):
         messages.warning(
             request,
-            "Production can only be started when the paper is ready for production.",
+            (
+                "Production can only be "
+                "started when the paper is "
+                "ready for production."
+            ),
         )
 
         return redirect(
@@ -559,17 +735,22 @@ def start_production(request, pk):
         )
 
     with transaction.atomic():
-        production, created = Production.objects.get_or_create(
-            paper=paper,
-            defaults={
-                "started_by": request.user,
-            },
+        production, created = (
+            Production.objects.get_or_create(
+                paper=paper,
+                defaults={
+                    "started_by": request.user,
+                },
+            )
         )
 
         if not created:
             messages.info(
                 request,
-                "Production has already been started for this paper.",
+                (
+                    "Production has already "
+                    "been started for this paper."
+                ),
             )
 
             return redirect(
@@ -577,7 +758,9 @@ def start_production(request, pk):
                 pk=paper.pk,
             )
 
-        paper.status = Paper.Status.IN_PRODUCTION
+        paper.status = (
+            Paper.Status.IN_PRODUCTION
+        )
 
         paper.save(
             update_fields=[
@@ -596,25 +779,31 @@ def start_production(request, pk):
         pk=paper.pk,
     )
 
+
 @role_required([User.Role.JOURNAL_OWNER])
 @require_POST
 def publish_paper(request, pk):
     paper = get_object_or_404(
         Paper.objects.filter(
             publication__owner=request.user,
-        )
-        .select_related("production"),
+        ).select_related(
+            "production",
+        ),
         pk=pk,
     )
 
     if (
-        paper.status != Paper.Status.IN_PRODUCTION
+        paper.status
+        != Paper.Status.IN_PRODUCTION
         or paper.production.status
         != Production.Status.IN_PRODUCTION
     ):
         messages.warning(
             request,
-            "Only papers currently in production can be published.",
+            (
+                "Only papers currently "
+                "in production can be published."
+            ),
         )
 
         return redirect(
@@ -625,9 +814,17 @@ def publish_paper(request, pk):
     with transaction.atomic():
         production = paper.production
 
-        production.status = Production.Status.PUBLISHED
-        production.published_by = request.user
-        production.published_at = timezone.now()
+        production.status = (
+            Production.Status.PUBLISHED
+        )
+
+        production.published_by = (
+            request.user
+        )
+
+        production.published_at = (
+            timezone.now()
+        )
 
         production.save(
             update_fields=[
@@ -637,7 +834,9 @@ def publish_paper(request, pk):
             ]
         )
 
-        paper.status = Paper.Status.PUBLISHED
+        paper.status = (
+            Paper.Status.PUBLISHED
+        )
 
         paper.save(
             update_fields=[
@@ -648,7 +847,10 @@ def publish_paper(request, pk):
 
     messages.success(
         request,
-        "Paper has been published successfully.",
+        (
+            "Paper has been published "
+            "successfully."
+        ),
     )
 
     return redirect(
@@ -656,8 +858,9 @@ def publish_paper(request, pk):
         pk=paper.pk,
     )
 
+
 @role_required([User.Role.EDITOR])
-def admin_paper_list(request):
+def editor_paper_list(request):
     papers = (
         Paper.objects.filter(
             publication__editors=request.user,
@@ -666,15 +869,20 @@ def admin_paper_list(request):
             "publication",
             "corresponding_author",
         )
-        .order_by("-submitted_at")
+        .order_by(
+            "-submitted_at",
+        )
         .distinct()
     )
 
     return render(
         request,
-        "papers/admin_paper_list.html",
-        {"papers": papers},
+        "papers/editor_paper_list.html",
+        {
+            "papers": papers,
+        },
     )
+
 
 @role_required([User.Role.EDITOR])
 def editor_review_workflow(request):
@@ -696,9 +904,14 @@ def editor_review_workflow(request):
         )
         .prefetch_related(
             "review_rounds__paper_version",
-            "review_rounds__reviewer_assignments__reviewer",
+            (
+                "review_rounds__"
+                "reviewer_assignments__reviewer"
+            ),
         )
-        .order_by("-submitted_at")
+        .order_by(
+            "-submitted_at",
+        )
         .distinct()
     )
 
@@ -710,8 +923,9 @@ def editor_review_workflow(request):
         },
     )
 
+
 @role_required([User.Role.EDITOR])
-def admin_paper_detail(request, pk):
+def editor_paper_detail(request, pk):
     paper = get_object_or_404(
         Paper.objects.filter(
             publication__editors=request.user,
@@ -726,16 +940,22 @@ def admin_paper_detail(request, pk):
         .prefetch_related(
             "versions",
             "review_rounds__paper_version",
-            "review_rounds__reviewer_assignments__reviewer",
+            (
+                "review_rounds__"
+                "reviewer_assignments__reviewer"
+            ),
         ),
         pk=pk,
     )
 
     return render(
         request,
-        "papers/admin_paper_detail.html",
-        {"paper": paper},
+        "papers/editor_paper_detail.html",
+        {
+            "paper": paper,
+        },
     )
+
 
 @role_required([User.Role.EDITOR])
 @require_POST
@@ -752,38 +972,75 @@ def complete_copyediting(request, pk):
         pk=pk,
     )
 
-    if (
-        paper.status != Paper.Status.COPYEDITING
-        or paper.copyediting.status
-        != Copyediting.Status.CORRECTION_SUBMITTED
-    ):
+    if paper.status != Paper.Status.COPYEDITING:
         messages.warning(
             request,
-            "Copyediting can only be completed after the Author submits the corrected copy.",
+            (
+                "Copyediting can only be completed "
+                "while copyediting is in progress."
+            ),
         )
 
         return redirect(
-            "admin_paper_detail",
+            "editor_paper_detail",
             pk=paper.pk,
         )
 
-    if not paper.copyediting.corrected_version:
-        messages.error(
+    allowed_copyediting_statuses = [
+        Copyediting.Status.IN_PROGRESS,
+        Copyediting.Status.CORRECTION_SUBMITTED,
+    ]
+
+    if (
+        paper.copyediting.status
+        not in allowed_copyediting_statuses
+    ):
+        messages.warning(
             request,
-            "No corrected paper version was found.",
+            (
+                "Copyediting cannot be completed "
+                "until the required Author correction "
+                "has been submitted."
+            ),
         )
 
         return redirect(
-            "admin_paper_detail",
+            "editor_paper_detail",
+            pk=paper.pk,
+        )
+
+    if (
+        paper.copyediting.status
+        == Copyediting.Status.CORRECTION_SUBMITTED
+        and not paper.copyediting.corrected_version
+    ):
+        messages.error(
+            request,
+            (
+                "No corrected paper version "
+                "was found."
+            ),
+        )
+
+        return redirect(
+            "editor_paper_detail",
             pk=paper.pk,
         )
 
     with transaction.atomic():
         copyediting = paper.copyediting
 
-        copyediting.status = Copyediting.Status.COMPLETED
-        copyediting.completed_by = request.user
-        copyediting.completed_at = timezone.now()
+        copyediting.status = (
+            Copyediting.Status.COMPLETED
+        )
+
+        copyediting.completed_by = (
+            request.user
+        )
+
+        copyediting.completed_at = (
+            timezone.now()
+        )
 
         copyediting.save(
             update_fields=[
@@ -793,7 +1050,9 @@ def complete_copyediting(request, pk):
             ]
         )
 
-        paper.status = Paper.Status.READY_FOR_PRODUCTION
+        paper.status = (
+            Paper.Status.READY_FOR_PRODUCTION
+        )
 
         paper.save(
             update_fields=[
@@ -804,16 +1063,20 @@ def complete_copyediting(request, pk):
 
     messages.success(
         request,
-        "Copyediting has been completed. The paper is ready for production.",
+        (
+            "Copyediting has been completed. "
+            "The paper is ready for production."
+        ),
     )
 
     return redirect(
-        "admin_paper_detail",
+        "editor_paper_detail",
         pk=paper.pk,
     )
 
+
 @role_required([User.Role.EDITOR])
-def paper_initial_screening(request, pk):
+def editor_paper_screening(request, pk):
     paper = get_object_or_404(
         Paper.objects.filter(
             publication__editors=request.user,
@@ -829,11 +1092,14 @@ def paper_initial_screening(request, pk):
     if paper.status not in allowed_statuses:
         messages.warning(
             request,
-            "Initial screening is no longer available for this paper.",
+            (
+                "Initial screening is no longer "
+                "available for this paper."
+            ),
         )
 
         return redirect(
-            "admin_paper_detail",
+            "editor_paper_detail",
             pk=paper.pk,
         )
 
@@ -855,9 +1121,10 @@ def paper_initial_screening(request, pk):
             )
 
             return redirect(
-                "admin_paper_detail",
+                "editor_paper_detail",
                 pk=paper.pk,
             )
+
     else:
         form = InitialScreeningForm(
             instance=paper,
@@ -865,7 +1132,7 @@ def paper_initial_screening(request, pk):
 
     return render(
         request,
-        "papers/paper_initial_screening.html",
+        "papers/editor_paper_screening.html",
         {
             "form": form,
             "paper": paper,
@@ -882,17 +1149,20 @@ def paper_final_decision(request, pk):
         pk=pk,
     )
 
-    if paper.status != Paper.Status.REVIEW_COMPLETED:
+    if (
+        paper.status
+        != Paper.Status.REVIEW_COMPLETED
+    ):
         messages.warning(
             request,
             (
-                "The review must be completed before "
-                "making the final decision."
+                "The review must be completed "
+                "before making the final decision."
             ),
         )
 
         return redirect(
-            "admin_paper_detail",
+            "editor_paper_detail",
             pk=paper.pk,
         )
 
@@ -911,9 +1181,11 @@ def paper_final_decision(request, pk):
                     defaults={
                         "decision": paper.status,
                         "decided_by": request.user,
-                        "note": form.cleaned_data.get(
-                            "note",
-                            "",
+                        "note": (
+                            form.cleaned_data.get(
+                                "note",
+                                "",
+                            )
                         ),
                     },
                 )
@@ -927,7 +1199,7 @@ def paper_final_decision(request, pk):
             )
 
             return redirect(
-                "admin_paper_detail",
+                "editor_paper_detail",
                 pk=paper.pk,
             )
 
