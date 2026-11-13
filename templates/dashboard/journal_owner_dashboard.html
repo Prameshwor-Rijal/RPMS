@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}Journal Owner Dashboard | RPMS{% endblock %}
+
+{% block content %}
+
+<!-- Dashboard Header -->
+
+<section class="dashboard-header">
+
+    <div>
+
+        <span class="page-label">
+            Journal Owner
+        </span>
+
+        <h1 class="display-6 fw-bold mt-2 mb-2">
+            Journal Owner Dashboard
+        </h1>
+
+        <p class="text-secondary mb-0">
+            Manage your Journals and Conferences, Editors,
+            Reviewers, and publication workflow.
+        </p>
+
+    </div>
+
+    <div class="dashboard-user-card">
+
+        <span class="dashboard-avatar">
+            {{ user.username|first|upper }}
+        </span>
+
+        <div>
+
+            <p class="fw-semibold mb-0">
+                {{ user.get_full_name|default:user.username }}
+            </p>
+
+            <small class="text-secondary">
+                Journal Owner
+            </small>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Management Cards -->
+
+<div class="row g-4 mb-5">
+
+    <!-- Publications -->
+
+    <div class="col-md-6 col-lg-4">
+
+        <div class="dashboard-card h-100">
+
+            <div class="dashboard-card-icon">
+                01
+            </div>
+
+            <h2 class="h5 fw-bold">
+                Journals & Conferences
+            </h2>
+
+            <p class="text-secondary">
+                Create and manage Journals and Conferences,
+                including submission and review deadlines.
+            </p>
+
+            <a
+                href="{% url 'publication_list' %}"
+                class="btn btn-primary mt-auto"
+            >
+                Manage Publications
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- Editorial Management -->
+
+    <div class="col-md-6 col-lg-4">
+
+        <div class="dashboard-card h-100">
+
+            <div class="dashboard-card-icon">
+                02
+            </div>
+
+            <h2 class="h5 fw-bold">
+                Editorial Management
+            </h2>
+
+            <p class="text-secondary">
+                View and manage Editors assigned to your
+                Journals and Conferences.
+            </p>
+
+            <a
+                href="{% url 'editorial_management' %}"
+                class="btn btn-outline-primary mt-auto"
+            >
+                Manage Editorial Team
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- Editor & Reviewer Accounts -->
+
+    <div class="col-md-6 col-lg-4">
+
+        <div class="dashboard-card h-100">
+
+            <div class="dashboard-card-icon">
+                03
+            </div>
+
+            <h2 class="h5 fw-bold">
+                Editor & Reviewer Accounts
+            </h2>
+
+            <p class="text-secondary">
+                Create and manage Editor and Reviewer accounts
+                belonging to your publication environment.
+            </p>
+
+            <a
+                href="{% url 'managed_account_list' %}"
+                class="btn btn-outline-primary mt-auto"
+            >
+                Manage Accounts
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Submission Monitoring -->
+
+<section class="mb-5">
+
+    <div class="mb-4">
+
+        <span class="page-label">
+            Submission Monitoring
+        </span>
+
+        <h2 class="h4 fw-bold mt-2 mb-1">
+            Papers Submitted to My Publications
+        </h2>
+
+        <p class="text-secondary mb-0">
+            Monitor papers submitted to your Journals and Conferences.
+        </p>
+
+    </div>
+
+    <div class="detail-card">
+
+        {% if monitored_papers %}
+
+            <div class="table-responsive">
+
+                <table class="table align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+                            <th>Paper</th>
+                            <th>Publication</th>
+                            <th>Author</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for paper in monitored_papers %}
+
+                            <tr>
+
+                                <td>
+
+                                    <strong>
+                                        {{ paper.title }}
+                                    </strong>
+
+                                </td>
+
+                                <td>
+                                    {{ paper.publication.name }}
+                                </td>
+
+                                <td>
+                                    {{ paper.corresponding_author.get_full_name|default:paper.corresponding_author.username }}
+                                </td>
+
+                                <td>
+
+                                    <span class="status-badge status-{{ paper.status|lower }}">
+                                        {{ paper.get_status_display }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    {% if paper.submitted_at %}
+
+                                        {{ paper.submitted_at|date:"M d, Y H:i" }}
+
+                                    {% else %}
+
+                                        -
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+
+                                    <a
+                                        href="{% url 'journal_owner_paper_detail' paper.pk %}"
+                                        class="btn btn-sm btn-outline-primary"
+                                    >
+                                        View
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <p class="text-secondary mb-0">
+                No papers have been submitted to your publications yet.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+<!-- Journal Owner Workflow -->
+
+<section class="detail-card">
+
+    <span class="page-label">
+        Journal Owner Workflow
+    </span>
+
+    <h2 class="h5 fw-bold mt-2 mb-2">
+        Publication Management Flow
+    </h2>
+
+    <p class="text-secondary mb-0">
+        Create publication → Create Editor and Reviewer accounts →
+        Assign Editors → Monitor submissions →
+        Track review and copyediting → Manage production →
+        Publish papers
+    </p>
+
+</section>
+
+{% endblock %}

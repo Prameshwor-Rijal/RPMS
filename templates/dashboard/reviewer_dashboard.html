@@ -1,46 +1,240 @@
 {% extends "base.html" %}
+
 {% block title %}Reviewer Dashboard | RPMS{% endblock %}
+
 {% block content %}
-    <section class="dashboard-header mb-4">
-        <div>
-            <span class="dashboard-role-label">Reviewer Workspace</span>
-            <h1 class="display-6 fw-bold mt-2 mb-2">Reviewer Dashboard</h1>
-            <p class="text-secondary mb-0">
-                View assigned papers, respond to assignments and
-                complete reviews with a recommendation.
-            </p>
-        </div>
-        <div class="dashboard-user-card">
-            <span class="dashboard-avatar">{{ user.username|first|upper }}</span>
-            <div>
-                <p class="fw-semibold mb-0">{{ user.get_full_name|default:user.username }}</p>
-                <small class="text-secondary">{{ user.area_of_expertise|default:"Reviewer" }}</small>
-            </div>
-        </div>
-    </section>
-    <div class="row g-4">
-        <div class="col-md-7 col-xl-5">
-            <div class="dashboard-card h-100">
-                <div class="dashboard-card-icon">01</div>
-                <h2 class="h5 fw-bold">My Review Assignments</h2>
-                <p class="text-secondary">
-                    View assigned papers and check whether each
-                    assignment is assigned, accepted, declined or completed.
-                </p>
-                <a href="{% url 'reviewer_assignment_list' %}"
-                   class="btn btn-primary mt-auto">View Assignments</a>
-            </div>
-        </div>
-        <div class="col-md-5 col-xl-4">
-            <div class="dashboard-info-card h-100">
-                <h2 class="h5 fw-bold">Review process</h2>
-                <ol class="dashboard-process-list">
-                    <li>Open the assigned paper.</li>
-                    <li>Accept or decline the assignment.</li>
-                    <li>Read the uploaded PDF.</li>
-                    <li>Complete the review with a recommendation.</li>
-                </ol>
-            </div>
-        </div>
+
+<section class="dashboard-header mb-4">
+
+    <div>
+
+        <span class="dashboard-role-label">
+            Reviewer Workspace
+        </span>
+
+        <h1 class="display-6 fw-bold mt-2 mb-2">
+            Reviewer Dashboard
+        </h1>
+
+        <p class="text-secondary mb-0">
+            Manage assigned reviews, evaluate the correct paper version,
+            provide comments, and submit your recommendation for each
+            review round.
+        </p>
+
     </div>
+
+    <div class="dashboard-user-card">
+
+        <span class="dashboard-avatar">
+            {{ user.username|first|upper }}
+        </span>
+
+        <div>
+
+            <p class="fw-semibold mb-0">
+                {{ user.get_full_name|default:user.username }}
+            </p>
+
+            <small class="text-secondary">
+                {{ user.area_of_expertise|default:"Reviewer" }}
+            </small>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Reviewer Actions -->
+
+<div class="row g-4 mb-5">
+
+    <div class="col-md-7 col-xl-5">
+
+        <div class="dashboard-card h-100">
+
+            <div class="dashboard-card-icon">
+                01
+            </div>
+
+            <h2 class="h5 fw-bold">
+                My Review Assignments
+            </h2>
+
+            <p class="text-secondary">
+                View papers assigned to you, check the current review
+                round and paper version, and track whether an assignment
+                is assigned, accepted, declined, or completed.
+            </p>
+
+            <a
+                href="{% url 'reviewer_assignment_list' %}"
+                class="btn btn-primary mt-auto"
+            >
+                View Assignments
+            </a>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-5 col-xl-4">
+
+        <div class="dashboard-info-card h-100">
+
+            <h2 class="h5 fw-bold">
+                Review Process
+            </h2>
+
+            <ol class="dashboard-process-list">
+                <li>
+                    Open the assigned review.
+                </li>
+
+                <li>
+                    Accept or decline the assignment.
+                </li>
+
+                <li>
+                    Check the review round and assigned paper version.
+                </li>
+
+                <li>
+                    Read the protected PDF file.
+                </li>
+
+                <li>
+                    Write your review comments.
+                </li>
+
+                <li>
+                    Submit your recommendation.
+                </li>
+            </ol>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Review Recommendations -->
+
+<section class="detail-card mb-4">
+
+    <span class="dashboard-role-label">
+        Review Recommendations
+    </span>
+
+    <h2 class="h5 fw-bold mt-2 mb-3">
+        Available Review Outcomes
+    </h2>
+
+    <div class="row g-4">
+
+        <div class="col-md-4">
+
+            <h3 class="h6 fw-bold">
+                Recommend Accept
+            </h3>
+
+            <p class="text-secondary mb-0">
+                Recommend acceptance when the paper has satisfactorily
+                addressed the required academic and technical concerns.
+            </p>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <h3 class="h6 fw-bold">
+                Request Revision
+            </h3>
+
+            <p class="text-secondary mb-0">
+                Request changes and provide comments for the Author.
+                A revised paper can be submitted as a new version and
+                returned for another review round.
+            </p>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <h3 class="h6 fw-bold">
+                Recommend Reject
+            </h3>
+
+            <p class="text-secondary mb-0">
+                Recommend rejection when the paper has major issues that
+                should prevent it from progressing further in the review
+                process.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Review Round Information -->
+
+<section class="detail-card mb-4">
+
+    <span class="dashboard-role-label">
+        Review Rounds
+    </span>
+
+    <h2 class="h5 fw-bold mt-2 mb-2">
+        Revised Papers May Return to You
+    </h2>
+
+    <p class="text-secondary mb-0">
+        When an Author submits a revised paper, RPMS creates a new paper
+        version and a new review round. You may be assigned again to review
+        the revised version, so always check the displayed review round and
+        paper version before completing your review.
+    </p>
+
+</section>
+
+<!-- Reviewer Workflow -->
+
+<section class="dashboard-help">
+
+    <div>
+
+        <span class="dashboard-role-label">
+            Reviewer Workflow
+        </span>
+
+        <h2 class="h5 fw-bold mt-2 mb-2">
+            From Assignment to Recommendation
+        </h2>
+
+        <p class="fw-semibold mb-2">
+            Assigned
+            →
+            Accept Assignment
+            →
+            Review Paper Version
+            →
+            Add Comments
+            →
+            Submit Recommendation
+            →
+            Review Completed
+        </p>
+
+        <p class="text-secondary small mb-0">
+            Your recommendation does not directly accept or reject the
+            paper. After the review process is completed, the Editor makes
+            the official final decision.
+        </p>
+
+    </div>
+
+</section>
+
 {% endblock %}

@@ -4,7 +4,11 @@ from . import views
 
 
 urlpatterns = [
-    path("submit/", views.paper_submit, name="paper_submit"),
+    path(
+        "submit/",
+        views.paper_submit,
+        name="paper_submit",
+    ),
 
     path(
         "my-submissions/",
@@ -14,14 +18,14 @@ urlpatterns = [
 
     path(
         "manage/",
-        views.admin_paper_list,
-        name="admin_paper_list",
+        views.editor_paper_list,
+        name="editor_paper_list",
     ),
 
     path(
         "manage/<int:pk>/screening/",
-        views.paper_initial_screening,
-        name="paper_initial_screening",
+        views.editor_paper_screening,
+        name="editor_paper_screening",
     ),
 
     path(
@@ -31,9 +35,69 @@ urlpatterns = [
     ),
 
     path(
+        "manage/<int:pk>/copyediting/start/",
+        views.start_copyediting,
+        name="start_copyediting",
+    ),
+
+    path(
+        "manage/<int:pk>/copyediting/correction/",
+        views.request_copyediting_correction,
+        name="request_copyediting_correction",
+    ),
+
+    path(
+        "manage/<int:pk>/copyediting/complete/",
+        views.complete_copyediting,
+        name="complete_copyediting",
+    ),
+
+    path(
         "manage/<int:pk>/",
-        views.admin_paper_detail,
-        name="admin_paper_detail",
+        views.editor_paper_detail,
+        name="editor_paper_detail",
+    ),
+
+    path(
+        "manage/review-workflow/",
+        views.editor_review_workflow,
+        name="editor_review_workflow",
+    ),
+
+    path(
+        "owner/<int:pk>/production/start/",
+        views.start_production,
+        name="start_production",
+    ),
+
+    path(
+        "owner/<int:pk>/production/publish/",
+        views.publish_paper,
+        name="publish_paper",
+    ),
+
+    path(
+        "owner/<int:pk>/",
+        views.journal_owner_paper_detail,
+        name="journal_owner_paper_detail",
+    ),
+
+    path(
+        "version/<int:version_id>/file/",
+        views.paper_version_file,
+        name="paper_version_file",
+    ),
+
+    path(
+        "<int:pk>/copyediting/submit/",
+        views.copyediting_submission,
+        name="copyediting_submission",
+    ),
+
+    path(
+        "<int:pk>/revision/",
+        views.paper_revision_upload,
+        name="paper_revision_upload",
     ),
 
     path(

@@ -1,63 +1,230 @@
 {% extends "base.html" %}
-{% block title %}{{ publication.name }} | RPMS{% endblock %}
+
+{% block title %}
+    {{ publication.name }} | RPMS
+{% endblock %}
+
 {% block content %}
-    <section class="page-header">
-        <div>
-            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                <span class="page-label">{{ publication.get_publication_type_display }}</span>
-                <span class="status-badge status-{{ publication.status|lower }}">{{ publication.get_status_display }}</span>
-            </div>
-            <h1 class="h2 fw-bold mb-2">{{ publication.name }}</h1>
-            <p class="text-secondary mb-0">Publication information and important dates.</p>
+
+<section class="page-header">
+    <div>
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            <span class="page-label">
+                {{ publication.get_publication_type_display }}
+            </span>
+
+            <span class="status-badge status-{{ publication.lifecycle_status|lower }}">
+                {{ publication.get_lifecycle_status_display }}
+            </span>
         </div>
-        <div class="d-flex flex-wrap gap-2">
-            <a href="{% url 'publication_update' publication.pk %}"
-               class="btn btn-primary">Edit</a>
-            <a href="{% url 'publication_delete' publication.pk %}"
-               class="btn btn-outline-danger">Delete</a>
+
+        <h1 class="h2 fw-bold mb-2">
+            {{ publication.name }}
+        </h1>
+
+        <p class="text-secondary mb-0">
+            Publication information and important dates.
+        </p>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a
+            href="{% url 'publication_update' publication.pk %}"
+            class="btn btn-primary"
+        >
+            Edit
+        </a>
+
+        <a
+            href="{% url 'publication_delete' publication.pk %}"
+            class="btn btn-outline-danger"
+        >
+            Delete
+        </a>
+    </div>
+</section>
+
+<div class="detail-card">
+    <div class="detail-grid">
+
+        <div class="detail-item detail-item-wide">
+            <span>Description</span>
+
+            <p>
+                {{ publication.description|default:"No description provided." }}
+            </p>
         </div>
-    </section>
-    <div class="detail-card">
-        <div class="detail-grid">
-            <div class="detail-item detail-item-wide">
-                <span>Description</span>
-                <p>{{ publication.description|default:"No description provided." }}</p>
-            </div>
+
+        <div class="detail-item">
+            <span>Publication Type</span>
+
+            <p>
+                {{ publication.get_publication_type_display }}
+            </p>
+        </div>
+
+        <div class="detail-item">
+            <span>Lifecycle Status</span>
+
+            <p>
+                {{ publication.get_lifecycle_status_display }}
+            </p>
+        </div>
+
+        <div class="detail-item">
+            <span>Submission Status</span>
+
+            <p>
+                {{ publication.submission_status_display }}
+            </p>
+        </div>
+
+        <div class="detail-item">
+            <span>Submission Opens</span>
+
+            <p>
+                {{ publication.submission_open_date|date:"M d, Y" }}
+            </p>
+        </div>
+
+        <div class="detail-item">
+            <span>Submission Deadline</span>
+
+            <p>
+                {{ publication.submission_deadline|date:"M d, Y" }}
+            </p>
+        </div>
+
+        <div class="detail-item">
+            <span>Review Deadline</span>
+
+            <p>
+                {{ publication.review_deadline|date:"M d, Y" }}
+            </p>
+        </div>
+
+        {% if publication.publication_type == "JOURNAL" %}
+
             <div class="detail-item">
-                <span>Publication Type</span>
-                <p>{{ publication.get_publication_type_display }}</p>
+                <span>ISSN</span>
+
+                <p>
+                    {{ publication.issn|default:"Not specified" }}
+                </p>
             </div>
+
             <div class="detail-item">
-                <span>Status</span>
-                <p>{{ publication.get_status_display }}</p>
+                <span>Volume</span>
+
+                <p>
+                    {{ publication.volume|default:"Not specified" }}
+                </p>
             </div>
+
             <div class="detail-item">
-                <span>Submission Opens</span>
-                <p>{{ publication.submission_open_date|date:"M d, Y" }}</p>
+                <span>Issue</span>
+
+                <p>
+                    {{ publication.issue|default:"Not specified" }}
+                </p>
             </div>
+
             <div class="detail-item">
-                <span>Submission Deadline</span>
-                <p>{{ publication.submission_deadline|date:"M d, Y" }}</p>
+                <span>Publication Frequency</span>
+
+                <p>
+                    {{ publication.publication_frequency|default:"Not specified" }}
+                </p>
             </div>
+
+        {% elif publication.publication_type == "CONFERENCE" %}
+
             <div class="detail-item">
-                <span>Review Deadline</span>
-                <p>{{ publication.review_deadline|date:"M d, Y" }}</p>
+                <span>Organizer</span>
+
+                <p>
+                    {{ publication.organizer|default:"Not specified" }}
+                </p>
             </div>
+
             <div class="detail-item">
-                <span>Event or Publication Date</span>
-                <p>{{ publication.event_date|date:"M d, Y" }}</p>
+                <span>Conference Date</span>
+
+                <p>
+                    {% if publication.event_date %}
+                        {{ publication.event_date|date:"M d, Y" }}
+                    {% else %}
+                        Not specified
+                    {% endif %}
+                </p>
             </div>
+
+            <div class="detail-item">
+                <span>Venue</span>
+
+                <p>
+                    {{ publication.venue|default:"Not specified" }}
+                </p>
+            </div>
+
             <div class="detail-item">
                 <span>Location</span>
-                <p>{{ publication.location|default:"Not specified" }}</p>
+
+                <p>
+                    {{ publication.location|default:"Not specified" }}
+                </p>
             </div>
-            <div class="detail-item">
-                <span>Created By</span>
-                <p>{{ publication.created_by.get_full_name|default:publication.created_by.username }}</p>
-            </div>
+
+        {% endif %}
+
+        <div class="detail-item">
+            <span>Created By</span>
+
+            <p>
+                {% if publication.created_by %}
+                    {{ publication.created_by.get_full_name|default:publication.created_by.username }}
+                {% else %}
+                    Not available
+                {% endif %}
+            </p>
         </div>
+
+        <div class="detail-item">
+            <span>Owner</span>
+
+            <p>
+                {% if publication.owner %}
+                    {{ publication.owner.get_full_name|default:publication.owner.username }}
+                {% else %}
+                    Not assigned
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="detail-item">
+            <span>Assigned Editors</span>
+
+            {% for editor in publication.editors.all %}
+                <p class="mb-1">
+                    {{ editor.get_full_name|default:editor.username }}
+                </p>
+            {% empty %}
+                <p>
+                    No Editor assigned.
+                </p>
+            {% endfor %}
+        </div>
+
     </div>
-    <div class="mt-4">
-        <a href="{% url 'publication_list' %}" class="btn btn-outline-secondary">Back to Publications</a>
-    </div>
+</div>
+
+<div class="mt-4">
+    <a
+        href="{% url 'publication_list' %}"
+        class="btn btn-outline-secondary"
+    >
+        Back to Publications
+    </a>
+</div>
+
 {% endblock %}

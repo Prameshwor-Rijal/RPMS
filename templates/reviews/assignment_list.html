@@ -1,57 +1,138 @@
 {% extends "base.html" %}
+
 {% block title %}My Review Assignments | RPMS{% endblock %}
+
 {% block content %}
-    <section class="page-header">
-        <div>
-            <span class="page-label">Reviewer Workspace</span>
-            <h1 class="h2 fw-bold mt-2 mb-2">My Review Assignments</h1>
-            <p class="text-secondary mb-0">View assigned papers and track your response and completion status.</p>
-        </div>
-        <a href="{% url 'reviewer_dashboard' %}"
-           class="btn btn-outline-secondary">Back to Dashboard</a>
-    </section>
-    {% if assignments %}
-        <div class="content-card">
-            <div class="table-responsive">
-                <table class="table align-middle rpms-table mb-0">
-                    <thead>
+
+<section class="page-header">
+    <div>
+        <span class="page-label">
+            Reviewer Workspace
+        </span>
+
+        <h1 class="h2 fw-bold mt-2 mb-2">
+            My Review Assignments
+        </h1>
+
+        <p class="text-secondary mb-0">
+            View assigned papers and track your response and completion status.
+        </p>
+    </div>
+
+    <a
+        href="{% url 'reviewer_dashboard' %}"
+        class="btn btn-outline-secondary"
+    >
+        Back to Dashboard
+    </a>
+</section>
+
+{% if assignments %}
+
+    <div class="content-card">
+        <div class="table-responsive">
+
+            <table class="table align-middle rpms-table mb-0">
+
+                <thead>
+                    <tr>
+                        <th>Paper</th>
+                        <th>Conference/Journal</th>
+                        <th>Review Round</th>
+                        <th>Paper Version</th>
+                        <th>Status</th>
+                        <th>Assigned At</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for assignment in assignments %}
+
                         <tr>
-                            <th>Paper</th>
-                            <th>Conference/Journal</th>
-                            <th>Research Category</th>
-                            <th>Status</th>
-                            <th>Assigned At</th>
-                            <th class="text-end">Action</th>
+
+                            <td>
+                                <a
+                                    href="{% url 'reviewer_assignment_detail' assignment.pk %}"
+                                    class="fw-semibold text-decoration-none"
+                                >
+                                    {{ assignment.paper.title }}
+                                </a>
+
+                                <small class="d-block text-secondary">
+                                    {{ assignment.paper.research_category }}
+                                </small>
+                            </td>
+
+                            <td>
+                                {{ assignment.paper.publication.name }}
+                            </td>
+
+                            <td>
+                                {% if assignment.review_round %}
+                                    Round {{ assignment.review_round.round_number }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if assignment.review_round %}
+                                    Version {{ assignment.review_round.paper_version.version_number }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <span class="assignment-badge assignment-{{ assignment.status|lower }}">
+                                    {{ assignment.get_status_display }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {{ assignment.assigned_at|date:"M d, Y H:i" }}
+                            </td>
+
+                            <td class="text-end">
+                                <a
+                                    href="{% url 'reviewer_assignment_detail' assignment.pk %}"
+                                    class="btn btn-sm btn-outline-primary"
+                                >
+                                    Open
+                                </a>
+                            </td>
+
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for assignment in assignments %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'reviewer_assignment_detail' assignment.pk %}"
-                                       class="fw-semibold text-decoration-none">{{ assignment.paper.title }}</a>
-                                </td>
-                                <td>{{ assignment.paper.publication.name }}</td>
-                                <td>{{ assignment.paper.research_category }}</td>
-                                <td>
-                                    <span class="assignment-badge assignment-{{ assignment.status|lower }}">{{ assignment.get_status_display }}</span>
-                                </td>
-                                <td>{{ assignment.assigned_at|date:"M d, Y H:i" }}</td>
-                                <td class="text-end">
-                                    <a href="{% url 'reviewer_assignment_detail' assignment.pk %}"
-                                       class="btn btn-sm btn-outline-primary">Open</a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
         </div>
-    {% else %}
-        <div class="empty-state">
-            <div class="empty-state-icon">RV</div>
-            <h2 class="h4 fw-bold">No review assignments</h2>
-            <p class="text-secondary mb-0">Papers assigned to you will appear here.</p>
+    </div>
+
+{% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-state-icon">
+            RV
         </div>
-    {% endif %}
+
+        <h2 class="h4 fw-bold">
+            No review assignments
+        </h2>
+
+        <p class="text-secondary mb-0">
+            Papers assigned to you will appear here.
+        </p>
+
+    </div>
+
+{% endif %}
+
 {% endblock %}
