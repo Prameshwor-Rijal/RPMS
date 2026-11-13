@@ -1,743 +1,155 @@
 {% extends "base.html" %}
-
 {% block title %}Home | RPMS{% endblock %}
-
 {% block content %}
-
-<!-- Hero Section -->
-
-<section class="hero-section rounded-4 mb-5">
-
-    <div class="row align-items-center g-4 position-relative">
-
-        <div class="col-lg-7">
-
-            <span class="hero-label">
-                Research Paper Management System
-            </span>
-
-            <h1 class="display-5 fw-bold mt-3 mb-3">
-                Manage research papers from submission to publication
-            </h1>
-
-            <p class="lead mb-4">
-                A centralized platform for Authors, Reviewers, Editors,
-                and Journal Owners to manage research submissions,
-                peer review, revisions, editorial decisions,
-                copyediting, production, and final publication.
+    <section class="hero-section rounded-4 mb-5">
+        <div class="row align-items-center g-4 position-relative">
+            <div class="col-lg-7">
+                <span class="hero-label">Research Paper Management System</span>
+                <h1 class="display-5 fw-bold mt-3 mb-3">Manage research papers from submission to final decision</h1>
+                <p class="lead mb-4">
+                    A centralized platform for authors, reviewers and
+                    administrators to manage conferences, journals,
+                    paper submissions and review progress.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard_redirect' %}"
+                           class="btn btn-light btn-lg px-4">Open Dashboard</a>
+                    {% else %}
+                        <a href="{% url 'register' %}" class="btn btn-light btn-lg px-4">Register as Author</a>
+                        <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="hero-panel">
+                    <h2 class="h5 text-white mb-4">Paper Workflow</h2>
+                    <div class="hero-workflow-item">
+                        <span>1</span>
+                        Author submits a research paper
+                    </div>
+                    <div class="hero-workflow-item">
+                        <span>2</span>
+                        Admin assigns a reviewer
+                    </div>
+                    <div class="hero-workflow-item">
+                        <span>3</span>
+                        Reviewer completes the review
+                    </div>
+                    <div class="hero-workflow-item">
+                        <span>4</span>
+                        Admin accepts or rejects the paper
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="mb-5">
+        <div class="section-heading text-center mx-auto mb-4">
+            <p class="text-primary fw-semibold mb-2">Main Features</p>
+            <h2 class="fw-bold">Everything needed for the publication workflow</h2>
+            <p class="text-secondary mb-0">
+                The system focuses on the essential activities required
+                to manage research papers efficiently.
             </p>
-
-            <div class="d-flex flex-wrap gap-3">
-
-                {% if user.is_authenticated %}
-
-                    <a
-                        href="{% url 'dashboard_redirect' %}"
-                        class="btn btn-light btn-lg px-4"
-                    >
-                        Open Dashboard
-                    </a>
-
-                {% else %}
-
-                    <a
-                        href="{% url 'register' %}"
-                        class="btn btn-light btn-lg px-4"
-                    >
-                        Register as Author
-                    </a>
-
-                    <a
-                        href="{% url 'login' %}"
-                        class="btn btn-outline-light btn-lg px-4"
-                    >
-                        Login
-                    </a>
-
-                {% endif %}
-
-            </div>
-
         </div>
-
-        <div class="col-lg-5">
-
-            <div class="hero-panel">
-
-                <h2 class="h5 text-white mb-4">
-                    Publication Workflow
-                </h2>
-
-                <div class="hero-workflow-item">
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-number">01</div>
+                    <h3 class="h5">Author Registration</h3>
+                    <p class="mb-0 text-secondary">
+                        Authors can create accounts and access their own
+                        submission dashboard.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-number">02</div>
+                    <h3 class="h5">Paper Submission</h3>
+                    <p class="mb-0 text-secondary">
+                        Submit paper details and upload the research paper
+                        securely as a PDF.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-number">03</div>
+                    <h3 class="h5">Reviewer Assignment</h3>
+                    <p class="mb-0 text-secondary">
+                        Administrators can assign suitable reviewers to
+                        submitted papers.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-number">04</div>
+                    <h3 class="h5">Review Tracking</h3>
+                    <p class="mb-0 text-secondary">
+                        Track assignments as assigned, accepted, declined
+                        or completed.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-number">05</div>
+                    <h3 class="h5">Final Decisions</h3>
+                    <p class="mb-0 text-secondary">
+                        Administrators can accept or reject papers after
+                        reviewing their progress.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-number">06</div>
+                    <h3 class="h5">Publication Management</h3>
+                    <p class="mb-0 text-secondary">
+                        Create and manage conferences and journals with
+                        submission and review deadlines.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="workflow-section rounded-4 p-4 p-lg-5">
+        <div class="text-center mb-4">
+            <p class="text-primary fw-semibold mb-2">Simple Process</p>
+            <h2 class="fw-bold mb-0">From submission to decision</h2>
+        </div>
+        <div class="row g-4 text-center">
+            <div class="col-md-3">
+                <div class="workflow-step">
                     <span>1</span>
-                    Author submits a research paper
+                    <h3 class="h6 mt-3">Submit Paper</h3>
+                    <p class="small text-secondary mb-0">Author uploads a research paper.</p>
                 </div>
-
-                <div class="hero-workflow-item">
+            </div>
+            <div class="col-md-3">
+                <div class="workflow-step">
                     <span>2</span>
-                    Editor performs initial screening
+                    <h3 class="h6 mt-3">Assign Reviewer</h3>
+                    <p class="small text-secondary mb-0">Admin assigns a reviewer.</p>
                 </div>
-
-                <div class="hero-workflow-item">
+            </div>
+            <div class="col-md-3">
+                <div class="workflow-step">
                     <span>3</span>
-                    Reviewers evaluate the assigned paper version
+                    <h3 class="h6 mt-3">Complete Review</h3>
+                    <p class="small text-secondary mb-0">Reviewer submits a recommendation.</p>
                 </div>
-
-                <div class="hero-workflow-item">
+            </div>
+            <div class="col-md-3">
+                <div class="workflow-step">
                     <span>4</span>
-                    Author revises when changes are requested
+                    <h3 class="h6 mt-3">Final Decision</h3>
+                    <p class="small text-secondary mb-0">Admin accepts or rejects the paper.</p>
                 </div>
-
-                <div class="hero-workflow-item">
-                    <span>5</span>
-                    Editor makes the official final decision
-                </div>
-
-                <div class="hero-workflow-item">
-                    <span>6</span>
-                    Accepted paper completes copyediting
-                </div>
-
-                <div class="hero-workflow-item">
-                    <span>7</span>
-                    Journal Owner manages production and publication
-                </div>
-
             </div>
-
         </div>
-
-    </div>
-
-</section>
-
-<!-- Roles Section -->
-
-<section class="mb-5">
-
-    <div class="section-heading text-center mx-auto mb-4">
-
-        <p class="text-primary fw-semibold mb-2">
-            Role-Based Workspace
-        </p>
-
-        <h2 class="fw-bold">
-            Built for every stage of the publication process
-        </h2>
-
-        <p class="text-secondary mb-0">
-            Each business role receives access to the tools and
-            responsibilities required for its part of the workflow.
-        </p>
-
-    </div>
-
-    <div class="row g-4">
-
-        <!-- Author -->
-
-        <div class="col-md-6 col-lg-3">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    01
-                </div>
-
-                <h3 class="h5">
-                    Author
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Register independently, submit research papers,
-                    view anonymous Reviewer feedback, upload revised
-                    versions, complete copyediting corrections,
-                    and track publication progress.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Reviewer -->
-
-        <div class="col-md-6 col-lg-3">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    02
-                </div>
-
-                <h3 class="h5">
-                    Reviewer
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Accept or decline review assignments, review
-                    assigned paper versions, provide comments,
-                    and recommend Accept, Reject, or Revision.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Editor -->
-
-        <div class="col-md-6 col-lg-3">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    03
-                </div>
-
-                <h3 class="h5">
-                    Editor
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Perform initial screening, assign Reviewers,
-                    monitor review rounds, make official final
-                    decisions, and manage copyediting.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Journal Owner -->
-
-        <div class="col-md-6 col-lg-3">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    04
-                </div>
-
-                <h3 class="h5">
-                    Journal Owner
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Manage Journals and Conferences, create and manage
-                    Editor and Reviewer accounts, assign Editors,
-                    monitor submissions, manage production,
-                    and publish completed papers.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-<!-- Main Features -->
-
-<section class="mb-5">
-
-    <div class="section-heading text-center mx-auto mb-4">
-
-        <p class="text-primary fw-semibold mb-2">
-            Main Features
-        </p>
-
-        <h2 class="fw-bold">
-            Complete research publication workflow
-        </h2>
-
-        <p class="text-secondary mb-0">
-            RPMS manages the complete research paper lifecycle
-            while keeping editorial responsibilities and access
-            clearly separated between users.
-        </p>
-
-    </div>
-
-    <div class="row g-4">
-
-        <!-- Feature 1 -->
-
-        <div class="col-md-6 col-lg-4">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    01
-                </div>
-
-                <h3 class="h5">
-                    Paper Submission
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Authors select an available Journal or Conference,
-                    enter their research information, and securely
-                    upload the manuscript as a PDF file.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Feature 2 -->
-
-        <div class="col-md-6 col-lg-4">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    02
-                </div>
-
-                <h3 class="h5">
-                    Reviewer Assignment
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Editors can assign multiple Reviewers to a
-                    review round and monitor each Reviewer's
-                    assignment and completion status.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Feature 3 -->
-
-        <div class="col-md-6 col-lg-4">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    03
-                </div>
-
-                <h3 class="h5">
-                    Review Rounds & Versions
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Every revision creates a new paper version and
-                    review round, allowing the complete review history
-                    to remain available throughout the process.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Feature 4 -->
-
-        <div class="col-md-6 col-lg-4">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    04
-                </div>
-
-                <h3 class="h5">
-                    Revision & Feedback
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Reviewers can request revisions with comments.
-                    Authors can review the feedback and submit a
-                    revised manuscript for another review round.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Feature 5 -->
-
-        <div class="col-md-6 col-lg-4">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    05
-                </div>
-
-                <h3 class="h5">
-                    Editorial Decisions
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Reviewer recommendations support the review
-                    process, while the Editor records the official
-                    Accepted or Rejected final decision.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Feature 6 -->
-
-        <div class="col-md-6 col-lg-4">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    06
-                </div>
-
-                <h3 class="h5">
-                    Copyediting
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Editors manage copyediting for accepted papers,
-                    request corrections when required, and Authors
-                    submit corrected manuscript versions.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Feature 7 -->
-
-        <div class="col-md-6 col-lg-4">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    07
-                </div>
-
-                <h3 class="h5">
-                    Production & Publishing
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    After copyediting is completed, Journal Owners
-                    manage production and publish the final paper
-                    with its publication record.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Feature 8 -->
-
-        <div class="col-md-6 col-lg-4">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    08
-                </div>
-
-                <h3 class="h5">
-                    Journal & Editorial Management
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Journal Owners can manage multiple Journals and
-                    Conferences, create Editor and Reviewer accounts,
-                    and assign one or multiple Editors to publications.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Feature 9 -->
-
-        <div class="col-md-6 col-lg-4">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    09
-                </div>
-
-                <h3 class="h5">
-                    Secure & Isolated Access
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Paper files are protected by role-based access,
-                    while each Journal Owner's Editor and Reviewer
-                    accounts remain isolated from other owners.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-<!-- Account Structure -->
-
-<section class="mb-5">
-
-    <div class="section-heading text-center mx-auto mb-4">
-
-        <p class="text-primary fw-semibold mb-2">
-            Account Management
-        </p>
-
-        <h2 class="fw-bold">
-            Clear and controlled user access
-        </h2>
-
-        <p class="text-secondary mb-0">
-            RPMS separates public Author registration from
-            organization-managed editorial accounts.
-        </p>
-
-    </div>
-
-    <div class="row g-4">
-
-        <div class="col-md-4">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    01
-                </div>
-
-                <h3 class="h5">
-                    Author Registration
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Authors can register through the public
-                    registration page and submit papers to
-                    available publications.
-                </p>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-4">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    02
-                </div>
-
-                <h3 class="h5">
-                    Editorial Accounts
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Journal Owners create and manage their own
-                    Editor and Reviewer accounts for use within
-                    their publication environment.
-                </p>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-4">
-
-            <div class="feature-card h-100">
-
-                <div class="feature-number">
-                    03
-                </div>
-
-                <h3 class="h5">
-                    Owner Isolation
-                </h3>
-
-                <p class="mb-0 text-secondary">
-                    Editors and Reviewers belonging to one Journal
-                    Owner cannot be assigned to publications owned
-                    by another Journal Owner.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-<!-- Complete Workflow -->
-
-<section class="workflow-section rounded-4 p-4 p-lg-5">
-
-    <div class="text-center mb-4">
-
-        <p class="text-primary fw-semibold mb-2">
-            Complete Process
-        </p>
-
-        <h2 class="fw-bold mb-2">
-            From submission to publication
-        </h2>
-
-        <p class="text-secondary mb-0">
-            Every major stage of the research publication lifecycle
-            is tracked inside RPMS.
-        </p>
-
-    </div>
-
-    <div class="row g-4 text-center">
-
-        <!-- Step 1 -->
-
-        <div class="col-md-6 col-lg">
-
-            <div class="workflow-step">
-
-                <span>1</span>
-
-                <h3 class="h6 mt-3">
-                    Submit
-                </h3>
-
-                <p class="small text-secondary mb-0">
-                    Author submits the original manuscript.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Step 2 -->
-
-        <div class="col-md-6 col-lg">
-
-            <div class="workflow-step">
-
-                <span>2</span>
-
-                <h3 class="h6 mt-3">
-                    Screen
-                </h3>
-
-                <p class="small text-secondary mb-0">
-                    Editor performs initial screening.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Step 3 -->
-
-        <div class="col-md-6 col-lg">
-
-            <div class="workflow-step">
-
-                <span>3</span>
-
-                <h3 class="h6 mt-3">
-                    Review
-                </h3>
-
-                <p class="small text-secondary mb-0">
-                    Reviewers evaluate the assigned version.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Step 4 -->
-
-        <div class="col-md-6 col-lg">
-
-            <div class="workflow-step">
-
-                <span>4</span>
-
-                <h3 class="h6 mt-3">
-                    Revise
-                </h3>
-
-                <p class="small text-secondary mb-0">
-                    Author submits a revised version if required.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Step 5 -->
-
-        <div class="col-md-6 col-lg">
-
-            <div class="workflow-step">
-
-                <span>5</span>
-
-                <h3 class="h6 mt-3">
-                    Decide
-                </h3>
-
-                <p class="small text-secondary mb-0">
-                    Editor records the official final decision.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Step 6 -->
-
-        <div class="col-md-6 col-lg">
-
-            <div class="workflow-step">
-
-                <span>6</span>
-
-                <h3 class="h6 mt-3">
-                    Copyedit
-                </h3>
-
-                <p class="small text-secondary mb-0">
-                    Accepted paper is prepared for production.
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Step 7 -->
-
-        <div class="col-md-6 col-lg">
-
-            <div class="workflow-step">
-
-                <span>7</span>
-
-                <h3 class="h6 mt-3">
-                    Publish
-                </h3>
-
-                <p class="small text-secondary mb-0">
-                    Journal Owner completes production and publishing.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
+    </section>
 {% endblock %}

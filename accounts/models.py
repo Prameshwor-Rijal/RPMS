@@ -4,28 +4,12 @@ from django.db import models
 
 class User(AbstractUser):
     class Role(models.TextChoices):
-        JOURNAL_OWNER = (
-            "JOURNAL_OWNER",
-            "Journal Owner",
-        )
-
-        EDITOR = (
-            "EDITOR",
-            "Editor",
-        )
-
-        AUTHOR = (
-            "AUTHOR",
-            "Author",
-        )
-
-        REVIEWER = (
-            "REVIEWER",
-            "Reviewer",
-        )
+        ADMIN = "ADMIN", "Admin"
+        AUTHOR = "AUTHOR", "Author"
+        REVIEWER = "REVIEWER", "Reviewer"
 
     role = models.CharField(
-        max_length=20,
+        max_length=10,
         choices=Role.choices,
         default=Role.AUTHOR,
     )
@@ -38,14 +22,6 @@ class User(AbstractUser):
     area_of_expertise = models.CharField(
         max_length=255,
         blank=True,
-    )
-
-    created_by = models.ForeignKey(
-        "self",
-        on_delete=models.SET_NULL,
-        related_name="created_accounts",
-        blank=True,
-        null=True,
     )
 
     def __str__(self):

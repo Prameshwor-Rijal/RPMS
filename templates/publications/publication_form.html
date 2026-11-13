@@ -1,317 +1,39 @@
 {% extends "base.html" %}
-
 {% block title %}Create Publication | RPMS{% endblock %}
-
 {% block content %}
-
-<section class="page-header">
-    <div>
-        <span class="page-label">
-            Publication Management
-        </span>
-
-        <h1 class="h2 fw-bold mt-2 mb-2">
-            {{ form_title|default:"Create Publication" }}
-        </h1>
-
-        <p class="text-secondary mb-0">
-            {{ form_description|default:"Enter the publication information and important deadlines." }}
-        </p>
-    </div>
-</section>
-
-<div class="form-page-card">
-    <form method="post" class="rpms-form">
-        {% csrf_token %}
-
-        {% if form.non_field_errors %}
-            <div class="alert alert-danger">
-                {% for error in form.non_field_errors %}
-                    <p class="mb-0">
-                        {{ error }}
-                    </p>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        {% for field in form %}
-            <div
-                class="mb-3"
-                data-field-name="{{ field.name }}"
-            >
-                <label
-                    for="{{ field.id_for_label }}"
-                    class="form-label"
-                >
-                    {{ field.label }}
-                </label>
-
-                {{ field }}
-
-                {% if field.help_text %}
-                    <div class="form-text">
-                        {{ field.help_text }}
-                    </div>
-                {% endif %}
-
-                {% for error in field.errors %}
-                    <div class="text-danger small mt-1">
-                        {{ error }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endfor %}
-
-        <div class="d-flex flex-wrap gap-2 pt-2">
-            <button
-                type="submit"
-                class="btn btn-primary"
-            >
-                {{ submit_label|default:"Create Publication" }}
-            </button>
-
-            <a
-                href="{% url 'publication_list' %}"
-                class="btn btn-outline-secondary"
-            >
-                Cancel
-            </a>
+    <section class="page-header">
+        <div>
+            <span class="page-label">Publication Management</span>
+            <h1 class="h2 fw-bold mt-2 mb-2">Create Conference or Journal</h1>
+            <p class="text-secondary mb-0">Enter the publication information and important deadlines.</p>
         </div>
-    </form>
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const publicationType = document.getElementById(
-        "id_publication_type"
-    );
-
-    const openDate = document.getElementById(
-        "id_submission_open_date"
-    );
-
-    const submissionDeadline = document.getElementById(
-        "id_submission_deadline"
-    );
-
-    const reviewDeadline = document.getElementById(
-        "id_review_deadline"
-    );
-
-    const eventDate = document.getElementById(
-        "id_event_date"
-    );
-
-    const journalFields = [
-        "issn",
-        "volume",
-        "issue",
-        "publication_frequency"
-    ];
-
-    const conferenceFields = [
-        "organizer",
-        "event_date",
-        "venue",
-        "location"
-    ];
-
-    function setFieldVisibility(fieldName, visible) {
-        const container = document.querySelector(
-            `[data-field-name="${fieldName}"]`
-        );
-
-        if (!container) {
-            return;
-        }
-
-        container.style.display = visible ? "" : "none";
-    }
-
-    function updatePublicationFields() {
-        if (!publicationType) {
-            return;
-        }
-
-        const selectedType = publicationType.value;
-
-        journalFields.forEach(function (fieldName) {
-            setFieldVisibility(
-                fieldName,
-                selectedType === "JOURNAL"
-            );
-        });
-
-        conferenceFields.forEach(function (fieldName) {
-            setFieldVisibility(
-                fieldName,
-                selectedType === "CONFERENCE"
-            );
-        });
-
-        updateEventDate();
-    }
-
-    function getNextDate(dateValue) {
-        if (!dateValue) {
-            return "";
-        }
-
-        const parts = dateValue.split("-");
-
-        const date = new Date(
-            Date.UTC(
-                Number(parts[0]),
-                Number(parts[1]) - 1,
-                Number(parts[2])
-            )
-        );
-
-        date.setUTCDate(
-            date.getUTCDate() + 1
-        );
-
-        return date.toISOString().slice(0, 10);
-    }
-
-    function updateSubmissionDeadline() {
-        if (!openDate || !submissionDeadline) {
-            return;
-        }
-
-        if (!openDate.value) {
-            submissionDeadline.disabled = true;
-            submissionDeadline.value = "";
-
-            if (reviewDeadline) {
-                reviewDeadline.disabled = true;
-                reviewDeadline.value = "";
-            }
-
-            if (eventDate) {
-                eventDate.disabled = true;
-                eventDate.value = "";
-            }
-
-            return;
-        }
-
-        submissionDeadline.disabled = false;
-
-        const minimumDate = getNextDate(
-            openDate.value
-        );
-
-        submissionDeadline.min = minimumDate;
-
-        if (
-            submissionDeadline.value &&
-            submissionDeadline.value < minimumDate
-        ) {
-            submissionDeadline.value = "";
-        }
-
-        updateReviewDeadline();
-    }
-
-    function updateReviewDeadline() {
-        if (!submissionDeadline || !reviewDeadline) {
-            return;
-        }
-
-        if (!submissionDeadline.value) {
-            reviewDeadline.disabled = true;
-            reviewDeadline.value = "";
-
-            if (eventDate) {
-                eventDate.disabled = true;
-                eventDate.value = "";
-            }
-
-            return;
-        }
-
-        reviewDeadline.disabled = false;
-
-        const minimumDate = getNextDate(
-            submissionDeadline.value
-        );
-
-        reviewDeadline.min = minimumDate;
-
-        if (
-            reviewDeadline.value &&
-            reviewDeadline.value < minimumDate
-        ) {
-            reviewDeadline.value = "";
-        }
-
-        updateEventDate();
-    }
-
-    function updateEventDate() {
-        if (!eventDate || !reviewDeadline || !publicationType) {
-            return;
-        }
-
-        if (publicationType.value !== "CONFERENCE") {
-            eventDate.disabled = false;
-            return;
-        }
-
-        if (!reviewDeadline.value) {
-            eventDate.disabled = true;
-            eventDate.value = "";
-            return;
-        }
-
-        eventDate.disabled = false;
-
-        const minimumDate = getNextDate(
-            reviewDeadline.value
-        );
-
-        eventDate.min = minimumDate;
-
-        if (
-            eventDate.value &&
-            eventDate.value < minimumDate
-        ) {
-            eventDate.value = "";
-        }
-    }
-
-    if (publicationType) {
-        publicationType.addEventListener(
-            "change",
-            updatePublicationFields
-        );
-    }
-
-    if (openDate) {
-        openDate.addEventListener(
-            "change",
-            updateSubmissionDeadline
-        );
-    }
-
-    if (submissionDeadline) {
-        submissionDeadline.addEventListener(
-            "change",
-            updateReviewDeadline
-        );
-    }
-
-    if (reviewDeadline) {
-        reviewDeadline.addEventListener(
-            "change",
-            updateEventDate
-        );
-    }
-
-    updatePublicationFields();
-    updateSubmissionDeadline();
-});
-</script>
-
+    </section>
+    <div class="form-page-card">
+        <form method="post" class="rpms-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <p class="mb-0">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <div class="d-flex flex-wrap gap-2 pt-2">
+                <button type="submit" class="btn btn-primary">Create Publication</button>
+                <a href="{% url 'publication_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
 {% endblock %}

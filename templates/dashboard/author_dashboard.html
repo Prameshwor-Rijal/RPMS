@@ -1,248 +1,66 @@
 {% extends "base.html" %}
-
 {% block title %}Author Dashboard | RPMS{% endblock %}
-
 {% block content %}
-
-<section class="dashboard-header mb-4">
-
-    <div>
-
-        <span class="dashboard-role-label">
-            Author Workspace
-        </span>
-
-        <h1 class="display-6 fw-bold mt-2 mb-2">
-            Author Dashboard
-        </h1>
-
-        <p class="text-secondary mb-0">
-            Submit research papers, respond to reviewer feedback,
-            complete revisions and copyediting corrections, and
-            follow your paper from submission to publication.
-        </p>
-
-    </div>
-
-    <div class="dashboard-user-card">
-
-        <span class="dashboard-avatar">
-            {{ user.username|first|upper }}
-        </span>
-
+    <section class="dashboard-header mb-4">
         <div>
-
-            <p class="fw-semibold mb-0">
-                {{ user.get_full_name|default:user.username }}
+            <span class="dashboard-role-label">Author Workspace</span>
+            <h1 class="display-6 fw-bold mt-2 mb-2">Author Dashboard</h1>
+            <p class="text-secondary mb-0">
+                Submit research papers and follow their progress
+                from submission to final decision.
             </p>
-
-            <small class="text-secondary">
-                {{ user.email }}
-            </small>
-
         </div>
-
-    </div>
-
-</section>
-
-<!-- Author Actions -->
-
-<div class="row g-4 mb-5">
-
-    <!-- Available Publications -->
-
-    <div class="col-md-6 col-xl-4">
-
-        <div class="dashboard-card h-100">
-
-            <div class="dashboard-card-icon">
-                01
+        <div class="dashboard-user-card">
+            <span class="dashboard-avatar">{{ user.username|first|upper }}</span>
+            <div>
+                <p class="fw-semibold mb-0">{{ user.get_full_name|default:user.username }}</p>
+                <small class="text-secondary">{{ user.email }}</small>
             </div>
-
-            <h2 class="h5 fw-bold">
-                Available Publications
-            </h2>
-
-            <p class="text-secondary">
-                Explore Journals and Conferences that are currently
-                accepting research paper submissions.
-            </p>
-
-            <a
-                href="{% url 'available_publications' %}"
-                class="btn btn-primary mt-auto"
-            >
-                View Publications
-            </a>
-
         </div>
-
-    </div>
-
-    <!-- Submit Paper -->
-
-    <div class="col-md-6 col-xl-4">
-
-        <div class="dashboard-card h-100">
-
-            <div class="dashboard-card-icon">
-                02
-            </div>
-
-            <h2 class="h5 fw-bold">
-                Submit Research Paper
-            </h2>
-
-            <p class="text-secondary">
-                Enter your paper information, select an available
-                Journal or Conference, and upload your paper as a PDF.
-            </p>
-
-            <a
-                href="{% url 'paper_submit' %}"
-                class="btn btn-primary mt-auto"
-            >
-                Submit Paper
-            </a>
-
-        </div>
-
-    </div>
-
-    <!-- My Submissions -->
-
-    <div class="col-md-6 col-xl-4">
-
-        <div class="dashboard-card h-100">
-
-            <div class="dashboard-card-icon">
-                03
-            </div>
-
-            <h2 class="h5 fw-bold">
-                My Submissions
-            </h2>
-
-            <p class="text-secondary">
-                Track submitted papers, reviewer feedback, revisions,
-                final decisions, copyediting, production, and
-                publication status.
-            </p>
-
-            <a
-                href="{% url 'my_submissions' %}"
-                class="btn btn-primary mt-auto"
-            >
-                View Submissions
-            </a>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- Author Responsibilities -->
-
-<section class="detail-card mb-4">
-
-    <span class="dashboard-role-label">
-        Author Responsibilities
-    </span>
-
-    <h2 class="h5 fw-bold mt-2 mb-3">
-        What You Can Do
-    </h2>
-
+    </section>
     <div class="row g-4">
-
-        <div class="col-md-4">
-
-            <h3 class="h6 fw-bold">
-                Submit
-            </h3>
-
-            <p class="text-secondary mb-0">
-                Submit your original research paper to an available
-                Journal or Conference.
-            </p>
-
+        <div class="col-md-6 col-xl-4">
+            <div class="dashboard-card h-100">
+                <div class="dashboard-card-icon">01</div>
+                <h2 class="h5 fw-bold">Available Publications</h2>
+                <p class="text-secondary">
+                    View conferences and journals that are currently
+                    accepting paper submissions.
+                </p>
+                <a href="{% url 'available_publications' %}"
+                   class="btn btn-primary mt-auto">View Publications</a>
+            </div>
         </div>
-
-        <div class="col-md-4">
-
-            <h3 class="h6 fw-bold">
-                Revise
-            </h3>
-
-            <p class="text-secondary mb-0">
-                Review anonymous reviewer feedback, upload revised
-                versions, and continue through additional review rounds.
-            </p>
-
+        <div class="col-md-6 col-xl-4">
+            <div class="dashboard-card h-100">
+                <div class="dashboard-card-icon">02</div>
+                <h2 class="h5 fw-bold">Submit Research Paper</h2>
+                <p class="text-secondary">
+                    Enter your paper information and upload the
+                    research paper as a PDF file.
+                </p>
+                <a href="{% url 'paper_submit' %}" class="btn btn-primary mt-auto">Submit Paper</a>
+            </div>
         </div>
-
-        <div class="col-md-4">
-
-            <h3 class="h6 fw-bold">
-                Correct
-            </h3>
-
-            <p class="text-secondary mb-0">
-                After acceptance, respond to copyediting correction
-                requests and upload the corrected paper when required.
-            </p>
-
+        <div class="col-md-6 col-xl-4">
+            <div class="dashboard-card h-100">
+                <div class="dashboard-card-icon">03</div>
+                <h2 class="h5 fw-bold">My Submissions</h2>
+                <p class="text-secondary">
+                    Review submitted papers and track their current
+                    review and decision status.
+                </p>
+                <a href="{% url 'my_submissions' %}" class="btn btn-primary mt-auto">View Submissions</a>
+            </div>
         </div>
-
     </div>
-
-</section>
-
-<!-- Workflow -->
-
-<section class="dashboard-help">
-
-    <div>
-
-        <span class="dashboard-role-label">
-            Paper Workflow
-        </span>
-
-        <h2 class="h5 fw-bold mt-2 mb-2">
-            From Submission to Publication
-        </h2>
-
-        <p class="text-secondary mb-3">
-            Your paper can move through multiple review and revision
-            rounds before the Editor makes the official final decision.
-        </p>
-
-        <p class="fw-semibold mb-2">
-            1. Submit Paper
-            →
-            2. Initial Screening
-            →
-            3. Peer Review
-            →
-            4. Revision if Required
-            →
-            5. Final Decision
-            →
-            6. Copyediting
-            →
-            7. Production & Publication
-        </p>
-
-        <p class="text-secondary small mb-0">
-            Reviewer recommendations do not directly accept or reject
-            your paper. The Editor makes the official final decision
-            after the review process is completed.
-        </p>
-
-    </div>
-
-</section>
-
+    <section class="dashboard-help mt-5">
+        <div>
+            <h2 class="h5 fw-bold mb-2">Paper status workflow</h2>
+            <p class="text-secondary mb-0">
+                Submitted → Initial Review → Reviewer Assignment →
+                Under Review → Review Completed → Accepted or Rejected
+            </p>
+        </div>
+    </section>
 {% endblock %}

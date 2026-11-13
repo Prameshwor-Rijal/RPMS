@@ -1,139 +1,60 @@
 {% extends "base.html" %}
-
 {% block title %}Manage Publications | RPMS{% endblock %}
-
 {% block content %}
-
-<section class="page-header">
-    <div>
-        <span class="page-label">
-            Publication Management
-        </span>
-
-        <h1 class="h2 fw-bold mt-2 mb-2">
-            Conferences and Journals
-        </h1>
-
-        <p class="text-secondary mb-0">
-            Create and manage publication schedules,
-            deadlines and status.
-        </p>
-    </div>
-
-    <a
-        href="{% url 'publication_create' %}"
-        class="btn btn-primary"
-    >
-        Create Publication
-    </a>
-</section>
-
-{% if publications %}
-    <div class="content-card">
-        <div class="table-responsive">
-            <table class="table align-middle rpms-table mb-0">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Lifecycle</th>
-                        <th>Submission Status</th>
-                        <th>Submission Deadline</th>
-                        <th>Review Deadline</th>
-                        <th class="text-end">
-                            Action
-                        </th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for publication in publications %}
+    <section class="page-header">
+        <div>
+            <span class="page-label">Publication Management</span>
+            <h1 class="h2 fw-bold mt-2 mb-2">Conferences and Journals</h1>
+            <p class="text-secondary mb-0">Create and manage publication schedules, deadlines and status.</p>
+        </div>
+        <a href="{% url 'publication_create' %}" class="btn btn-primary">Create Publication</a>
+    </section>
+    {% if publications %}
+        <div class="content-card">
+            <div class="table-responsive">
+                <table class="table align-middle rpms-table mb-0">
+                    <thead>
                         <tr>
-                            <td>
-                                <a
-                                    href="{% url 'publication_detail' publication.pk %}"
-                                    class="fw-semibold text-decoration-none"
-                                >
-                                    {{ publication.name }}
-                                </a>
-                            </td>
-
-                            <td>
-                                {{ publication.get_publication_type_display }}
-                            </td>
-
-                            <td>
-                                <span
-                                    class="status-badge status-{{ publication.lifecycle_status|lower }}"
-                                >
-                                    {{ publication.get_lifecycle_status_display }}
-                                </span>
-                            </td>
-
-                            <td>
-                                <span
-                                    class="status-badge status-{{ publication.submission_status|lower }}"
-                                >
-                                    {{ publication.submission_status_display }}
-                                </span>
-                            </td>
-
-                            <td>
-                                {{ publication.submission_deadline|date:"M d, Y" }}
-                            </td>
-
-                            <td>
-                                {{ publication.review_deadline|date:"M d, Y" }}
-                            </td>
-
-                            <td class="text-end">
-                                <a
-                                    href="{% url 'publication_detail' publication.pk %}"
-                                    class="btn btn-sm btn-outline-primary"
-                                >
-                                    View
-                                </a>
-                            </td>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Submission Deadline</th>
+                            <th>Review Deadline</th>
+                            <th class="text-end">Action</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for publication in publications %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'publication_detail' publication.pk %}"
+                                       class="fw-semibold text-decoration-none">{{ publication.name }}</a>
+                                </td>
+                                <td>{{ publication.get_publication_type_display }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ publication.status|lower }}">{{ publication.get_status_display }}</span>
+                                </td>
+                                <td>{{ publication.submission_deadline|date:"M d, Y" }}</td>
+                                <td>{{ publication.review_deadline|date:"M d, Y" }}</td>
+                                <td class="text-end">
+                                    <a href="{% url 'publication_detail' publication.pk %}"
+                                       class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-
-{% else %}
-
-    <div class="empty-state">
-        <div class="empty-state-icon">
-            PJ
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">PJ</div>
+            <h2 class="h4 fw-bold">No publications created</h2>
+            <p class="text-secondary">Create the first conference or journal to begin accepting papers.</p>
+            <a href="{% url 'publication_create' %}" class="btn btn-primary">Create Publication</a>
         </div>
-
-        <h2 class="h4 fw-bold">
-            No publications created
-        </h2>
-
-        <p class="text-secondary">
-            Create the first conference or journal
-            to begin accepting papers.
-        </p>
-
-        <a
-            href="{% url 'publication_create' %}"
-            class="btn btn-primary"
-        >
-            Create Publication
-        </a>
+    {% endif %}
+    <div class="mt-4">
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
     </div>
-
-{% endif %}
-
-<div class="mt-4">
-    <a
-        href="{% url 'journal_owner_dashboard' %}"
-        class="btn btn-outline-secondary"
-    >
-        Back to Dashboard
-    </a>
-</div>
-
 {% endblock %}

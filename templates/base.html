@@ -1,458 +1,83 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        {% block title %}RPMS{% endblock %}
-    </title>
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
-        crossorigin="anonymous"
-    >
-
-    <link
-        rel="stylesheet"
-        href="{% static 'css/style.css' %}"
-    >
-
-</head>
-
-<body class="d-flex flex-column min-vh-100">
-
-    <!-- Top Navigation -->
-
-    <nav class="navbar navbar-dark navbar-rpms shadow-sm">
-
-        <div class="container">
-
-            <a
-                class="navbar-brand fw-bold"
-                href="{% url 'home' %}"
-            >
-                RPMS
-            </a>
-
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#rpmsNavigation"
-                aria-controls="rpmsNavigation"
-                aria-label="Open navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-        </div>
-
-    </nav>
-
-    <!-- Offcanvas Navigation -->
-
-    <div
-        class="offcanvas offcanvas-end text-bg-dark"
-        tabindex="-1"
-        id="rpmsNavigation"
-        aria-labelledby="rpmsNavigationLabel"
-    >
-
-        <div class="offcanvas-header">
-
-            <div>
-
-                <p
-                    class="small text-uppercase mb-1"
-                    id="rpmsNavigationLabel"
-                >
-                    Research Paper Management System
-                </p>
-
-                <h2 class="h5 fw-bold mb-0">
-                    Navigation
-                </h2>
-
-            </div>
-
-            <button
-                type="button"
-                class="btn-close btn-close-white"
-                data-bs-dismiss="offcanvas"
-                aria-label="Close"
-            ></button>
-
-        </div>
-
-        <div class="offcanvas-body d-flex flex-column">
-
-            <ul class="navbar-nav">
-
-                <li class="nav-item">
-
-                    <a
-                        class="nav-link"
-                        href="{% url 'home' %}"
-                    >
-                        Home
-                    </a>
-
-                </li>
-
-                {% if user.is_authenticated %}
-
-                    {% if user.is_superuser %}
-
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}RPMS{% endblock %}</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+              rel="stylesheet"
+              integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    </head>
+    <body class="d-flex flex-column min-vh-100">
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-rpms shadow-sm">
+            <div class="container">
+                <a class="navbar-brand fw-bold" href="{% url 'home' %}">RPMS</a>
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
                         <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'dashboard_redirect' %}"
-                            >
-                                System Dashboard
-                            </a>
-
+                            <a class="nav-link" href="{% url 'home' %}">Home</a>
                         </li>
-
-                        <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="/admin/"
-                            >
-                                System Administration
-                            </a>
-
-                        </li>
-
-                    {% elif user.role == "JOURNAL_OWNER" %}
-
-                        <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'dashboard_redirect' %}"
-                            >
-                                Dashboard
-                            </a>
-
-                        </li>
-
-                        <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'publication_list' %}"
-                            >
-                                Journals & Conferences
-                            </a>
-
-                        </li>
-
-                        <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'editorial_management' %}"
-                            >
-                                Editorial Management
-                            </a>
-
-                        </li>
-
-                        <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'managed_account_list' %}"
-                            >
-                                Editor & Reviewer Accounts
-                            </a>
-
-                        </li>
-
-                    {% elif user.role == "EDITOR" %}
-
-                        <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'dashboard_redirect' %}"
-                            >
-                                Dashboard
-                            </a>
-
-                        </li>
-
-                        <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'editor_paper_list' %}"
-                            >
-                                Submitted Papers
-                            </a>
-
-                        </li>
-
-                        <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'editor_review_workflow' %}"
-                            >
-                                Review Workflow
-                            </a>
-
-                        </li>
-
-                    {% elif user.role == "REVIEWER" %}
-
-                        <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'dashboard_redirect' %}"
-                            >
-                                Dashboard
-                            </a>
-
-                        </li>
-
-                        <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'reviewer_assignment_list' %}"
-                            >
-                                My Review Assignments
-                            </a>
-
-                        </li>
-
-                    {% elif user.role == "AUTHOR" %}
-
-                        <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'dashboard_redirect' %}"
-                            >
-                                Dashboard
-                            </a>
-
-                        </li>
-
-                        <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'available_publications' %}"
-                            >
-                                Available Publications
-                            </a>
-
-                        </li>
-
-                        <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'my_submissions' %}"
-                            >
-                                My Submissions
-                            </a>
-
-                        </li>
-
-                    {% endif %}
-
-                {% else %}
-
-                    <li class="nav-item">
-
-                        <a
-                            class="nav-link"
-                            href="{% url 'login' %}"
-                        >
-                            Login
-                        </a>
-
-                    </li>
-
-                    <li class="nav-item">
-
-                        <a
-                            class="nav-link"
-                            href="{% url 'register' %}"
-                        >
-                            Register as Author
-                        </a>
-
-                    </li>
-
-                {% endif %}
-
-            </ul>
-
-            {% if user.is_authenticated %}
-
-                <div class="mt-auto pt-4">
-
-                    <hr>
-
-                    <div class="d-flex align-items-center gap-3 mb-3">
-
-                        <div
-                            class="
-                                rounded-circle
-                                d-flex
-                                align-items-center
-                                justify-content-center
-                                fw-bold
-                            "
-                            style="width: 42px; height: 42px;"
-                        >
-                            {{ user.username|first|upper }}
-                        </div>
-
-                        <div>
-
-                            <p class="fw-semibold mb-0">
-                                {{ user.get_full_name|default:user.username }}
-                            </p>
-
-                            <small class="text-secondary">
-
-                                {% if user.is_superuser %}
-
-                                    System Administrator
-
-                                {% elif user.role %}
-
-                                    {{ user.get_role_display }}
-
-                                {% endif %}
-
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                    <form
-                        action="{% url 'logout' %}"
-                        method="post"
-                    >
-
-                        {% csrf_token %}
-
-                        <button
-                            type="submit"
-                            class="btn btn-outline-light w-100"
-                        >
-                            Logout
-                        </button>
-
-                    </form>
-
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'dashboard_redirect' %}">Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <span class="navbar-text text-white">{{ user.get_full_name|default:user.username }}</span>
+                            </li>
+                            <li class="nav-item">
+                                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+                                </form>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'login' %}">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-light btn-sm px-3" href="{% url 'register' %}">Register</a>
+                            </li>
+                        {% endif %}
+                    </ul>
                 </div>
-
-            {% endif %}
-
-        </div>
-
-    </div>
-
-    <!-- Main Content -->
-
-    <main class="container py-4 py-lg-5 flex-grow-1">
-
-        {% if messages %}
-
-            <div class="mb-4">
-
-                {% for message in messages %}
-
-                    <div
-                        class="
-                            alert
-                            {% if message.tags == 'success' %}
-                                alert-success
-                            {% elif message.tags == 'error' %}
-                                alert-danger
-                            {% elif message.tags == 'warning' %}
-                                alert-warning
-                            {% else %}
-                                alert-info
-                            {% endif %}
-                            alert-dismissible
-                            fade
-                            show
-                        "
-                        role="alert"
-                    >
-
-                        {{ message }}
-
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert"
-                            aria-label="Close"
-                        ></button>
-
-                    </div>
-
-                {% endfor %}
-
             </div>
-
-        {% endif %}
-
-
-        {% block content %}
-        {% endblock %}
-
-    </main>
-
-    <!-- Footer -->
-
-    <footer class="site-footer mt-auto">
-
-        <div class="container py-4 text-center">
-
-            <p class="mb-1 fw-semibold">
-                Research Paper Management System
-            </p>
-
-            <p class="mb-0 small">
-                Manage research submissions, peer review,
-                revisions, editorial decisions, copyediting,
-                production, and publication.
-            </p>
-
-        </div>
-
-    </footer>
-
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"
-    ></script>
-
-</body>
-
+        </nav>
+        <main class="container py-4 py-lg-5 flex-grow-1">
+            {% if messages %}
+                <div class="mb-4">
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags == 'success' %} alert-success {% elif message.tags == 'error' %} alert-danger {% elif message.tags == 'warning' %} alert-warning {% else %} alert-info {% endif %} alert-dismissible fade show"
+                             role="alert">
+                            {{ message }}
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+        <footer class="site-footer mt-auto">
+            <div class="container py-4 text-center">
+                <p class="mb-1 fw-semibold">Research Paper Management System</p>
+                <p class="mb-0 small">Manage submissions, reviews and publication decisions.</p>
+            </div>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+        </script>
+    </body>
 </html>

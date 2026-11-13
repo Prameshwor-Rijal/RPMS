@@ -1,216 +1,71 @@
 {% extends "base.html" %}
-
 {% block title %}Assign Reviewer | RPMS{% endblock %}
-
 {% block content %}
-
-<section class="page-header">
-
-    <div>
-
-        <span class="page-label">
-            Editor Workflow
-        </span>
-
-        <h1 class="h2 fw-bold mt-2 mb-2">
-            Assign Reviewer
-        </h1>
-
-        <p class="text-secondary mb-0">
-            Select an available Reviewer for this research paper.
-        </p>
-
-    </div>
-
-</section>
-
-
-<div class="workflow-form-layout">
-
-    <div class="form-page-card">
-
-        <form
-            method="post"
-            class="rpms-form"
-        >
-
-            {% csrf_token %}
-
-
-            {% if form.non_field_errors %}
-
-                <div class="alert alert-danger">
-
-                    {% for error in form.non_field_errors %}
-
-                        <p class="mb-0">
-                            {{ error }}
-                        </p>
-
-                    {% endfor %}
-
+    <section class="page-header">
+        <div>
+            <span class="page-label">Reviewer Assignment</span>
+            <h1 class="h2 fw-bold mt-2 mb-2">Assign Reviewer</h1>
+            <p class="text-secondary mb-0">Select an available reviewer for this research paper.</p>
+        </div>
+    </section>
+    <div class="workflow-form-layout">
+        <div class="form-page-card">
+            <form method="post" class="rpms-form">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            <p class="mb-0">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <div class="d-flex flex-wrap gap-2 pt-2">
+                    <button type="submit" class="btn btn-primary">Assign Reviewer</button>
+                    <a href="{% url 'admin_paper_detail' paper.pk %}"
+                       class="btn btn-outline-secondary">Cancel</a>
                 </div>
-
-            {% endif %}
-
-
-            {% for field in form %}
-
-                <div class="mb-3">
-
-                    <label
-                        for="{{ field.id_for_label }}"
-                        class="form-label"
-                    >
-                        {{ field.label }}
-                    </label>
-
-                    {{ field }}
-
-
-                    {% if field.help_text %}
-
-                        <div class="form-text">
-                            {{ field.help_text }}
-                        </div>
-
-                    {% endif %}
-
-
-                    {% for error in field.errors %}
-
-                        <div class="text-danger small mt-1">
-                            {{ error }}
-                        </div>
-
-                    {% endfor %}
-
+            </form>
+        </div>
+        <aside class="workflow-info-card">
+            <h2 class="h5 fw-bold">Assignment Information</h2>
+            <dl class="workflow-summary">
+                <div>
+                    <dt>Paper</dt>
+                    <dd>
+                        {{ paper.title }}
+                    </dd>
                 </div>
-
-            {% endfor %}
-
-
-            <div class="d-flex flex-wrap gap-2 pt-2">
-
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
-                    Assign Reviewer
-                </button>
-
-                <a
-                    href="{% url 'editor_paper_detail' paper.pk %}"
-                    class="btn btn-outline-secondary"
-                >
-                    Cancel
-                </a>
-
-            </div>
-
-        </form>
-
+                <div>
+                    <dt>Research Category</dt>
+                    <dd>
+                        {{ paper.research_category }}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Publication</dt>
+                    <dd>
+                        {{ paper.publication.name }}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Current Status</dt>
+                    <dd>
+                        <span class="status-badge status-{{ paper.status|lower }}">{{ paper.get_status_display }}</span>
+                    </dd>
+                </div>
+            </dl>
+        </aside>
     </div>
-
-
-    <aside class="workflow-info-card">
-
-        <span class="page-label mb-3">
-            Assignment Information
-        </span>
-
-        <h2 class="h5 fw-bold mb-3">
-            Paper Summary
-        </h2>
-
-
-        <dl class="workflow-summary">
-
-            <div>
-
-                <dt>
-                    Paper
-                </dt>
-
-                <dd>
-                    {{ paper.title }}
-                </dd>
-
-            </div>
-
-
-            <div>
-
-                <dt>
-                    Review Round
-                </dt>
-
-                <dd>
-                    Round {{ review_round.round_number }}
-                </dd>
-
-            </div>
-
-
-            <div>
-
-                <dt>
-                    Paper Version
-                </dt>
-
-                <dd>
-                    Version {{ review_round.paper_version.version_number }}
-                </dd>
-
-            </div>
-
-
-            <div>
-
-                <dt>
-                    Research Category
-                </dt>
-
-                <dd>
-                    {{ paper.research_category }}
-                </dd>
-
-            </div>
-
-
-            <div>
-
-                <dt>
-                    Publication
-                </dt>
-
-                <dd>
-                    {{ paper.publication.name }}
-                </dd>
-
-            </div>
-
-
-            <div>
-
-                <dt>
-                    Current Status
-                </dt>
-
-                <dd>
-
-                    <span class="status-badge status-{{ paper.status|lower }}">
-                        {{ paper.get_status_display }}
-                    </span>
-
-                </dd>
-
-            </div>
-
-        </dl>
-
-    </aside>
-
-</div>
-
 {% endblock %}

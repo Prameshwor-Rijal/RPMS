@@ -16,9 +16,7 @@
                     <article class="publication-card h-100">
                         <div class="d-flex justify-content-between gap-3">
                             <span class="page-label">{{ publication.get_publication_type_display }}</span>
-                            <span class="status-badge status-{{ publication.submission_status|lower }}">
-                                {{ publication.submission_status_display }}
-                            </span>
+                            <span class="status-badge status-{{ publication.status|lower }}">{{ publication.get_status_display }}</span>
                         </div>
                         <h2 class="h5 fw-bold mt-3">{{ publication.name }}</h2>
                         <p class="text-secondary">{{ publication.description|truncatewords:24 }}</p>

@@ -1,580 +1,115 @@
 {% extends "base.html" %}
-
 {% block title %}{{ paper.title }} | RPMS{% endblock %}
-
 {% block content %}
-
-<section class="page-header">
-    <div>
-        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-
-            <span class="page-label">
-                Submission #{{ paper.id }}
-            </span>
-
-            <span class="status-badge status-{{ paper.status|lower }}">
-                {{ paper.get_status_display }}
-            </span>
-
-        </div>
-
-        <h1 class="h2 fw-bold mb-2">
-            {{ paper.title }}
-        </h1>
-
-        <p class="text-secondary mb-0">
-            Submitted to {{ paper.publication.name }}
-        </p>
-    </div>
-
-    <a
-        href="{% url 'my_submissions' %}"
-        class="btn btn-outline-secondary"
-    >
-        Back to Submissions
-    </a>
-</section>
-
-<div class="row g-4">
-
-    <div class="col-lg-8">
-
-        <div class="detail-card h-100">
-
-            <h2 class="h5 fw-bold mb-4">
-                Paper Information
-            </h2>
-
-            <div class="detail-grid">
-
-                <div class="detail-item detail-item-wide">
-                    <span>Abstract</span>
-                    <p>{{ paper.abstract }}</p>
-                </div>
-
-                <div class="detail-item detail-item-wide">
-                    <span>Keywords</span>
-                    <p>{{ paper.keywords }}</p>
-                </div>
-
-                <div class="detail-item">
-                    <span>Research Category</span>
-                    <p>{{ paper.research_category }}</p>
-                </div>
-
-                <div class="detail-item">
-                    <span>Current Status</span>
-                    <p>{{ paper.get_status_display }}</p>
-                </div>
-
-                <div class="detail-item">
-                    <span>Conference/Journal</span>
-                    <p>{{ paper.publication.name }}</p>
-                </div>
-
-                <div class="detail-item">
-                    <span>Submitted At</span>
-
-                    <p>
-                        {% if paper.submitted_at %}
-                            {{ paper.submitted_at|date:"M d, Y H:i" }}
-                        {% else %}
-                            Not available
-                        {% endif %}
-                    </p>
-                </div>
-
+    <section class="page-header">
+        <div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <span class="page-label">Submission #{{ paper.id }}</span>
+                <span class="status-badge status-{{ paper.status|lower }}">{{ paper.get_status_display }}</span>
             </div>
-
+            <h1 class="h2 fw-bold mb-2">{{ paper.title }}</h1>
+            <p class="text-secondary mb-0">Submitted to {{ paper.publication.name }}</p>
         </div>
-
-    </div>
-
-    <div class="col-lg-4">
-
-        <div class="paper-status-card mb-4">
-
-            <h2 class="h5 fw-bold mb-3">
-                Submission Status
-            </h2>
-
-            <span class="status-badge status-{{ paper.status|lower }}">
-                {{ paper.get_status_display }}
-            </span>
-
-            <p class="text-secondary small mt-3 mb-0">
-                This status is updated as the paper moves through
-                screening, peer review, editorial decision,
-                copyediting, production, and publication.
-            </p>
-
-        </div>
-
-        <div class="paper-files-card">
-
-            <h2 class="h5 fw-bold mb-3">
-                Paper Versions
-            </h2>
-
-            {% if paper.versions.all %}
-
-                <div class="paper-version-list">
-
-                    {% for version in paper.versions.all %}
-
-                        <div class="paper-version-item">
-
-                            <div>
-
-                                <strong>
-                                    Version {{ version.version_number }}
-                                </strong>
-
-                                <small class="d-block text-secondary">
-                                    Uploaded
-                                    {{ version.uploaded_at|date:"M d, Y H:i" }}
-                                </small>
-
-                            </div>
-
-                            <a
-                                href="{% url 'paper_version_file' version.id %}"
-                                target="_blank"
-                                rel="noopener"
-                                class="btn btn-sm btn-outline-primary"
-                            >
-                                View PDF
-                            </a>
-
-                        </div>
-
-                    {% endfor %}
-
-                </div>
-
-            {% else %}
-
-                <p class="text-secondary mb-0">
-                    No paper files are available.
-                </p>
-
-            {% endif %}
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- Reviewer Feedback / Revision History -->
-
-{% for review_round in paper.review_rounds.all %}
-
-    {% if review_round.status == "REVISION_REQUIRED" %}
-
-        <section class="detail-card mt-4">
-
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-
-                <div>
-
-                    <span class="page-label">
-                        Reviewer Feedback
-                    </span>
-
-                    <h2 class="h5 fw-bold mt-2 mb-0">
-                        Revision Required
-                    </h2>
-
-                </div>
-
-                <div class="d-flex flex-wrap align-items-center gap-2">
-
-                    <span class="status-badge status-revision_required">
-                        Review Round {{ review_round.round_number }}
-                    </span>
-
-                    {% if paper.status == "REVISION_REQUIRED" %}
-
-                        <a
-                            href="{% url 'paper_revision_upload' paper.pk %}"
-                            class="btn btn-primary"
-                        >
-                            Upload Revised Version
-                        </a>
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-
-            <p class="text-secondary">
-                The Reviewers requested changes to
-                Version {{ review_round.paper_version.version_number }}.
-                Review the feedback below before submitting a revised version.
-            </p>
-
-            {% for assignment in review_round.reviewer_assignments.all %}
-
-                {% if assignment.status == "COMPLETED" and assignment.recommendation == "REVISION" %}
-
-                    <div class="border rounded p-3 mb-3">
-
-                        <strong class="d-block mb-2">
-                            Reviewer Feedback
-                        </strong>
-
-                        {% if assignment.comments %}
-
-                            <p class="mb-0">
-                                {{ assignment.comments|linebreaksbr }}
-                            </p>
-
-                        {% else %}
-
-                            <p class="text-secondary mb-0">
-                                No detailed comments were provided.
-                            </p>
-
-                        {% endif %}
-
+        <a href="{% url 'my_submissions' %}" class="btn btn-outline-secondary">Back to Submissions</a>
+    </section>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="detail-card h-100">
+                <h2 class="h5 fw-bold mb-4">Paper Information</h2>
+                <div class="detail-grid">
+                    <div class="detail-item detail-item-wide">
+                        <span>Abstract</span>
+                        <p>{{ paper.abstract }}</p>
                     </div>
-
-                {% endif %}
-
-            {% endfor %}
-
-        </section>
-
-    {% endif %}
-
-{% endfor %}
-
-<!-- Official Final Decision -->
-
-{% if paper.final_decision %}
-
-    <section class="detail-card mt-4">
-
-        <div class="mb-4">
-
-            <span class="page-label">
-                Editorial Decision
-            </span>
-
-            <h2 class="h5 fw-bold mt-2 mb-0">
-                Official Final Decision
-            </h2>
-
-        </div>
-
-        <div class="detail-grid">
-
-            <div class="detail-item">
-
-                <span>Decision</span>
-
-                <p class="fw-semibold">
-                    {{ paper.final_decision.get_decision_display }}
-                </p>
-
-            </div>
-
-            <div class="detail-item">
-
-                <span>Decided At</span>
-
-                <p>
-                    {{ paper.final_decision.decided_at|date:"M d, Y H:i" }}
-                </p>
-
-            </div>
-
-            {% if paper.final_decision.note %}
-
-                <div class="detail-item detail-item-wide">
-
-                    <span>Decision Note</span>
-
-                    <p>
-                        {{ paper.final_decision.note|linebreaksbr }}
-                    </p>
-
+                    <div class="detail-item detail-item-wide">
+                        <span>Keywords</span>
+                        <p>{{ paper.keywords }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span>Research Category</span>
+                        <p>{{ paper.research_category }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span>Current Status</span>
+                        <p>{{ paper.get_status_display }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span>Conference/Journal</span>
+                        <p>{{ paper.publication.name }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span>Submitted At</span>
+                        <p>{{ paper.submitted_at|date:"M d, Y H:i" }}</p>
+                    </div>
                 </div>
-
-            {% endif %}
-
-        </div>
-
-    </section>
-
-{% endif %}
-
-<!-- Copyediting Correction -->
-
-{% if paper.status == "COPYEDITING_CORRECTION_REQUIRED" and paper.copyediting %}
-
-    <section class="detail-card mt-4">
-
-        <div class="mb-4">
-
-            <span class="page-label">
-                Copyediting
-            </span>
-
-            <h2 class="h5 fw-bold mt-2 mb-0">
-                Copyediting Correction Required
-            </h2>
-
-        </div>
-
-        <div class="detail-item">
-
-            <span>Editor Correction Request</span>
-
-            <p class="mb-0">
-                {{ paper.copyediting.correction_note|linebreaksbr }}
-            </p>
-
-        </div>
-
-        <div class="mt-3">
-
-            <a
-                href="{% url 'copyediting_submission' paper.pk %}"
-                class="btn btn-primary"
-            >
-                Submit Corrected Copy
-            </a>
-
-        </div>
-
-    </section>
-
-{% endif %}
-
-<!-- Paper Progress -->
-
-<section class="paper-progress-card mt-4">
-
-    <h2 class="h5 fw-bold mb-4">
-        Paper Progress
-    </h2>
-
-    <div class="paper-progress">
-
-        <!-- Step 1 -->
-        <div class="paper-progress-step is-complete">
-
-            <span>1</span>
-
-            <div>
-                <strong>Submitted</strong>
-                <small>Paper submitted successfully</small>
             </div>
-
         </div>
-
-        <!-- Step 2 -->
-        <div class="paper-progress-step
-            {% if paper.status != 'SUBMITTED' %}
-                is-complete
-            {% endif %}
-        ">
-
-            <span>2</span>
-
-            <div>
-                <strong>Initial Screening</strong>
-                <small>Editor checks the submission</small>
-            </div>
-
-        </div>
-
-        <!-- Step 3 -->
-        <div class="paper-progress-step
-            {% if paper.status == 'UNDER_REVIEW' or paper.status == 'REVISION_REQUIRED' or paper.status == 'REVIEW_COMPLETED' or paper.status == 'ACCEPTED' or paper.status == 'REJECTED' or paper.status == 'COPYEDITING' or paper.status == 'COPYEDITING_CORRECTION_REQUIRED' or paper.status == 'READY_FOR_PRODUCTION' or paper.status == 'IN_PRODUCTION' or paper.status == 'PUBLISHED' %}
-                is-complete
-            {% endif %}
-        ">
-
-            <span>3</span>
-
-            <div>
-                <strong>Peer Review</strong>
-                <small>Reviewer assignment, review and revision</small>
-            </div>
-
-        </div>
-
-        <!-- Step 4 -->
-        <div class="paper-progress-step
-            {% if paper.status == 'ACCEPTED' or paper.status == 'REJECTED' or paper.status == 'COPYEDITING' or paper.status == 'COPYEDITING_CORRECTION_REQUIRED' or paper.status == 'READY_FOR_PRODUCTION' or paper.status == 'IN_PRODUCTION' or paper.status == 'PUBLISHED' %}
-                is-complete
-            {% endif %}
-        ">
-
-            <span>4</span>
-
-            <div>
-                <strong>Final Decision</strong>
-                <small>Official Editor decision</small>
-            </div>
-
-        </div>
-
-        <!-- Step 5 -->
-        <div class="paper-progress-step
-            {% if paper.status == 'READY_FOR_PRODUCTION' or paper.status == 'IN_PRODUCTION' or paper.status == 'PUBLISHED' %}
-                is-complete
-            {% endif %}
-        ">
-
-            <span>5</span>
-
-            <div>
-                <strong>Copyediting</strong>
-                <small>Language, formatting and correction process</small>
-            </div>
-
-        </div>
-
-        <!-- Step 6 -->
-        <div class="paper-progress-step
-            {% if paper.status == 'IN_PRODUCTION' or paper.status == 'PUBLISHED' %}
-                is-complete
-            {% endif %}
-        ">
-
-            <span>6</span>
-
-            <div>
-                <strong>Production</strong>
-                <small>Paper prepared for final publication</small>
-            </div>
-
-        </div>
-
-        <!-- Step 7 -->
-        <div class="paper-progress-step
-            {% if paper.status == 'PUBLISHED' %}
-                is-complete
-            {% endif %}
-        ">
-
-            <span>7</span>
-
-            <div>
-                <strong>Published</strong>
-                <small>Final publication completed</small>
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- Current Progress Message -->
-
-    <div class="border rounded p-3 mt-4">
-
-        <strong class="d-block mb-2">
-            Current Progress
-        </strong>
-
-        {% if paper.status == "SUBMITTED" %}
-
-            <p class="text-secondary mb-0">
-                Your paper has been submitted and is waiting for initial screening.
-            </p>
-
-        {% elif paper.status == "UNDER_INITIAL_REVIEW" %}
-
-            <p class="text-secondary mb-0">
-                Your paper is currently undergoing initial screening by the Editor.
-            </p>
-
-        {% elif paper.status == "READY_FOR_REVIEW" %}
-
-            <p class="text-secondary mb-0">
-                Initial screening is complete. Your paper is waiting for Reviewer assignment.
-            </p>
-
-        {% elif paper.status == "UNDER_REVIEW" %}
-
-            <p class="text-secondary mb-0">
-                Your paper is currently under peer review.
-            </p>
-
-        {% elif paper.status == "REVISION_REQUIRED" %}
-
-            <p class="text-secondary mb-0">
-                Revision has been requested. Review the feedback and submit a revised version.
-            </p>
-
-        {% elif paper.status == "REVIEW_COMPLETED" %}
-
-            <p class="text-secondary mb-0">
-                Peer review has been completed. The paper is waiting for the Editor's final decision.
-            </p>
-
-        {% elif paper.status == "ACCEPTED" %}
-
-            <p class="text-secondary mb-0">
-                Your paper has been accepted and is waiting to enter copyediting.
-            </p>
-
-        {% elif paper.status == "REJECTED" %}
-
-            <p class="text-secondary mb-0">
-                The final editorial decision for this paper is Rejected.
-            </p>
-
-        {% elif paper.status == "COPYEDITING" %}
-
-            {% if paper.copyediting.status == "CORRECTION_SUBMITTED" %}
-
-                <p class="text-secondary mb-0">
-                    Your corrected copy has been submitted and is waiting for Editor verification.
+        <div class="col-lg-4">
+            <div class="paper-status-card mb-4">
+                <h2 class="h5 fw-bold mb-3">Submission Status</h2>
+                <span class="status-badge status-{{ paper.status|lower }}">{{ paper.get_status_display }}</span>
+                <p class="text-secondary small mt-3 mb-0">
+                    This status is updated as the paper moves through
+                    screening, reviewer assignment and final decision.
                 </p>
-
-            {% else %}
-
-                <p class="text-secondary mb-0">
-                    Your paper is currently in the copyediting stage.
-                </p>
-
-            {% endif %}
-
-        {% elif paper.status == "COPYEDITING_CORRECTION_REQUIRED" %}
-
-            <p class="text-secondary mb-0">
-                Copyediting corrections have been requested.
-                Review the Editor's note and submit the corrected paper.
-            </p>
-
-        {% elif paper.status == "READY_FOR_PRODUCTION" %}
-
-            <p class="text-secondary mb-0">
-                Copyediting is complete and your paper is ready for production.
-            </p>
-
-        {% elif paper.status == "IN_PRODUCTION" %}
-
-            <p class="text-secondary mb-0">
-                Your paper is currently in production and preparation for publication.
-            </p>
-
-        {% elif paper.status == "PUBLISHED" %}
-
-            <p class="text-secondary mb-0">
-                Your paper has been published successfully.
-            </p>
-
-        {% endif %}
-
+            </div>
+            <div class="paper-files-card">
+                <h2 class="h5 fw-bold mb-3">Paper Versions</h2>
+                {% if paper.versions.all %}
+                    <div class="paper-version-list">
+                        {% for version in paper.versions.all %}
+                            <div class="paper-version-item">
+                                <div>
+                                    <strong>Version {{ version.version_number }}</strong>
+                                    <small class="d-block text-secondary">
+                                        Uploaded
+                                        {{ version.uploaded_at|date:"M d, Y H:i" }}
+                                    </small>
+                                </div>
+                                <a href="{{ version.file.url }}"
+                                   target="_blank"
+                                   rel="noopener"
+                                   class="btn btn-sm btn-outline-primary">View PDF</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-secondary mb-0">No paper files are available.</p>
+                {% endif %}
+            </div>
+        </div>
     </div>
-
-</section>
-
+    <section class="paper-progress-card mt-4">
+        <h2 class="h5 fw-bold mb-4">Paper Progress</h2>
+        <div class="paper-progress">
+            <div class="paper-progress-step is-complete">
+                <span>1</span>
+                <div>
+                    <strong>Submitted</strong>
+                    <small>Paper uploaded successfully</small>
+                </div>
+            </div>
+            <div class="paper-progress-step {% if paper.status != 'SUBMITTED' %} is-complete {% endif %} ">
+                <span>2</span>
+                <div>
+                    <strong>Initial Review</strong>
+                    <small>Administrator screening</small>
+                </div>
+            </div>
+            <div class="paper-progress-step {% if paper.status == 'UNDER_REVIEW' or paper.status == 'REVIEW_COMPLETED' or paper.status == 'ACCEPTED' or paper.status == 'REJECTED' %} is-complete {% endif %} ">
+                <span>3</span>
+                <div>
+                    <strong>Reviewer Process</strong>
+                    <small>Reviewer assignment and review</small>
+                </div>
+            </div>
+            <div class="paper-progress-step {% if paper.status == 'ACCEPTED' or paper.status == 'REJECTED' %} is-complete {% endif %} ">
+                <span>4</span>
+                <div>
+                    <strong>Final Decision</strong>
+                    <small>Accepted or rejected</small>
+                </div>
+            </div>
+        </div>
+    </section>
 {% endblock %}
